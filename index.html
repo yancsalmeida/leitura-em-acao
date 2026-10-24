@@ -425,10 +425,11 @@
         <span id="hdr-name" style="color: var(--amber); font-weight: 600; font-size: 1rem;"></span>
       </div>
       <div class="top-badges">
+        <div class="pill" id="cloud-badge" style="font-size: 0.8rem; color: #93c5fd; cursor: pointer;" onclick="pullFromCloud(true)" title="Clique para atualizar da nuvem">☁️ Sincronizado</div>
         <div class="pill green">🖥️ PC: <span id="hdr-pc">0h 00m</span> / <span id="hdr-pc-max">6h</span></div>
         <div class="pill amber">💰 Mesada: R$ <span id="hdr-money">0,00</span></div>
         <button class="btn btn-green" style="padding: 6px 14px; border-radius: 999px; font-size: 0.85rem;" onclick="shareWithUncle()">
-          📲 Enviar Placar pro Tio
+          📲 Mandar no WhatsApp
         </button>
       </div>
     </div>
@@ -957,8 +958,10 @@
     }
 
     function saveState() {
+      state.updatedAt = Date.now();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       render();
+      pushToCloud();
     }
 
     function openTab(name) {
@@ -1619,7 +1622,88 @@ Retorne APENAS um JSON válido neste formato:
       return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    // Sincronização via Link Mágico (?placar=...) para o Tio abrir no celular/PC
+    // Sincronização Automática em Nuvem (para acessar de qualquer aparelho no mesmo site)
+    const CLOUD_KV_URL = 'https://keyvalue.immanuel.co/api/KeyVal';
+    const CLOUD_APP_KEY = '9s4l9rpa';
+    const CLOUD_POINTER_KEY = 'placar_yan_v1';
+
+    async function pushToCloud() {
+      const badge = document.getElementById('cloud-badge');
+      if (badge) badge.textContent = '☁️ Salvando...';
+      try {
+        const safeSettings = { ...state.settings };
+        delete safeSettings.geminiApiKey;
+
+        const payload = {
+          updatedAt: state.updatedAt || Date.now(),
+          s: safeSettings,
+          w: state.currentWeek,
+          p: (state.pastWeeks || []).slice(0, 12)
+        };
+
+        const postResp = await fetch('https://bytebin.lucko.me/post', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const postData = await postResp.json();
+        if (postData && postData.key) {
+          await fetch(`${CLOUD_KV_URL}/UpdateValue/${CLOUD_APP_KEY}/${CLOUD_POINTER_KEY}/${postData.key}`, {
+            method: 'POST'
+          });
+          if (badge) badge.textContent = '☁️ Sincronizado';
+        }
+      } catch (e) {
+        if (badge) badge.textContent = '☁️ Salvo local';
+      }
+    }
+
+    async function pullFromCloud(manual = false) {
+      const badge = document.getElementById('cloud-badge');
+      if (badge) badge.textContent = '☁️ Atualizando...';
+      try {
+        const ptrResp = await fetch(`${CLOUD_KV_URL}/GetValue/${CLOUD_APP_KEY}/${CLOUD_POINTER_KEY}`);
+        const ptrRaw = await ptrResp.text();
+        const binKey = ptrRaw.replace(/"/g, '').trim();
+        if (!binKey || binKey === 'null' || binKey.length < 5) {
+          if (badge) badge.textContent = '☁️ Sincronizado';
+          return;
+        }
+
+        const dataResp = await fetch(`https://bytebin.lucko.me/${binKey}`);
+        if (!dataResp.ok) {
+          if (badge) badge.textContent = '☁️ Sincronizado';
+          return;
+        }
+        const decoded = await dataResp.json();
+        if (decoded && decoded.w) {
+          const localTime = state.updatedAt || 0;
+          const cloudTime = decoded.updatedAt || 0;
+          if (manual || cloudTime >= localTime || (state.currentWeek.essays || []).length === 0) {
+            const currentKey = state.settings.geminiApiKey || DEFAULT_API_KEY;
+            state.updatedAt = cloudTime;
+            state.currentWeek = {
+              ...defaultState.currentWeek,
+              ...decoded.w,
+              habits: { ...defaultState.currentWeek.habits, ...(decoded.w.habits || {}) }
+            };
+            if (decoded.s) {
+              state.settings = { ...defaultState.settings, ...decoded.s, geminiApiKey: currentKey };
+            }
+            if (Array.isArray(decoded.p)) {
+              state.pastWeeks = decoded.p;
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            render();
+          }
+        }
+        if (badge) badge.textContent = '☁️ Sincronizado';
+      } catch (e) {
+        if (badge) badge.textContent = '☁️ Salvo local';
+      }
+    }
+
+    // Sincronização via Link (?placar=...) como backup adicional
     function checkUrlSync() {
       try {
         const params = new URLSearchParams(window.location.search);
@@ -1629,6 +1713,7 @@ Retorne APENAS um JSON válido neste formato:
         const decoded = JSON.parse(decodeURIComponent(atob(placarParam)));
         if (decoded && decoded.w) {
           const currentKey = state.settings.geminiApiKey || DEFAULT_API_KEY;
+          state.updatedAt = Date.now();
           state.currentWeek = {
             ...defaultState.currentWeek,
             ...decoded.w,
@@ -1642,35 +1727,18 @@ Retorne APENAS um JSON válido neste formato:
           }
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
           window.history.replaceState({}, document.title, window.location.pathname);
-          setTimeout(() => {
-            alert('✅ Placar atualizado com sucesso! As redações, horas de PC e mesada já estão sincronizadas neste aparelho.');
-          }, 200);
+          pushToCloud();
         }
       } catch (e) {
         console.warn('Erro ao ler placar do link:', e);
       }
     }
 
-    function shareWithUncle() {
+    async function shareWithUncle() {
+      await pushToCloud();
       const m = getMetrics();
       const goal = state.settings.weeklyGoal || 3;
       const essays = state.currentWeek.essays || [];
-
-      const safeSettings = { ...state.settings };
-      delete safeSettings.geminiApiKey;
-
-      const syncPayload = {
-        s: safeSettings,
-        w: state.currentWeek,
-        p: (state.pastWeeks || []).slice(0, 8)
-      };
-
-      const encoded = btoa(encodeURIComponent(JSON.stringify(syncPayload)));
-      const isOnline = window.location.protocol.startsWith('http');
-      const baseUrl = isOnline
-        ? (window.location.origin + window.location.pathname)
-        : 'https://yancsalmeida.github.io/leitura-em-acao/';
-      const syncUrl = `${baseUrl}?placar=${encoded}`;
 
       let essayLines = '';
       if (essays.length > 0) {
@@ -1683,7 +1751,7 @@ Retorne APENAS um JSON válido neste formato:
         `💰 *Mesada acumulada:* R$ ${fmtMoney(m.money)} / R$ ${fmtMoney(m.maxMoney)}\n` +
         `📝 *Meta 60+ pts:* ${m.approved}/${goal} redações\n` +
         essayLines +
-        `\n🔗 *Clique no link abaixo para abrir o painel sincronizado:*\n${syncUrl}`;
+        `\n🌐 *Acesse o painel ao vivo aqui:*\nhttps://is.gd/leituraemacao`;
 
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(msg).catch(() => {});
@@ -1693,9 +1761,11 @@ Retorne APENAS um JSON válido neste formato:
       window.open(waUrl, '_blank');
     }
 
+    window.addEventListener('focus', () => pullFromCloud(false));
     checkUrlSync();
     buildMissionLocal();
     render();
+    pullFromCloud(false);
   </script>
 </body>
 </html>
