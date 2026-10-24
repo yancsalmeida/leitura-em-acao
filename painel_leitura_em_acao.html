@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leitura em Ação</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-2: #0b1324;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --blue: #3b82f6;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --purple: #8b5cf6;
+      --red: #ef4444;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      padding-bottom: 40px;
+    }
+
+    /* Minimal Header */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+    }
+
+    .header-wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+
+    .top-badges {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .pill.green { color: #34d399; border-color: rgba(16, 185, 129, 0.4); }
+    .pill.amber { color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); }
+
+    /* Clean Navigation */
+    .tabs {
+      max-width: 1080px;
+      margin: 18px auto 0;
+      padding: 0 20px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid transparent;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .tab:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .tab.active {
+      background: var(--blue);
+      color: white;
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1080px;
+      margin: 18px auto;
+      padding: 0 20px;
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .big-stat {
+      font-size: 2rem;
+      font-weight: 800;
+    }
+
+    .sub-text {
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    /* Progress Bar */
+    .bar-bg {
+      background: var(--surface-2);
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 16px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    .bar-fill.green { background: var(--green); }
+    .bar-fill.amber { background: var(--amber); }
+
+    /* Compact Check List */
+    .check-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .check-row.done {
+      border-color: var(--green);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .check-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .check-left input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--green);
+      cursor: pointer;
+    }
+
+    /* Inputs & Buttons */
+    label {
+      display: block;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="password"],
+    select,
+    textarea {
+      width: 100%;
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.92rem;
+      font-family: inherit;
+      margin-bottom: 12px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--blue);
+    }
+
+    .btn {
+      background: var(--blue);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: 0.15s;
+    }
+
+    .btn:hover { filter: brightness(1.1); }
+    .btn-green { background: var(--green); }
+    .btn-amber { background: var(--amber); color: #0f172a; }
+    .btn-purple { background: var(--purple); }
+    .btn-red { background: var(--red); }
+    .btn-ghost {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Compact Timer */
+    .timer-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .timer-clock {
+      font-size: 2.3rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      margin: 4px 0 8px;
+    }
+
+    .timer-clock.warn-15 { color: var(--amber); }
+    .timer-clock.warn-5 { color: var(--red); }
+
+    /* Compact Rubric Row */
+    .crit-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      gap: 10px;
+    }
+
+    .crit-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .crit-btns {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .pts-btn {
+      background: var(--surface);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .pts-btn.sel-0, .pts-btn.sel-5 { background: rgba(239, 68, 68, 0.2); border-color: var(--red); color: #fca5a5; }
+    .pts-btn.sel-10, .pts-btn.sel-15 { background: rgba(245, 158, 11, 0.2); border-color: var(--amber); color: #fde68a; }
+    .pts-btn.sel-20 { background: rgba(16, 185, 129, 0.2); border-color: var(--green); color: #6ee7b7; }
+
+    /* Upload Box (Photo + PDF) */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      background: var(--surface-2);
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: var(--blue);
+      background: rgba(59, 130, 246, 0.06);
+    }
+
+    .preview-area {
+      margin-top: 12px;
+      display: none;
+    }
+
+    .preview-area img {
+      max-width: 100%;
+      max-height: 380px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .preview-area iframe {
+      width: 100%;
+      height: 380px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: white;
+    }
+
+    /* Simple List Item */
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      gap: 12px;
+    }
+
+    .chip {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: #93c5fd;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .chip:hover {
+      border-color: var(--blue);
+      background: rgba(59, 130, 246, 0.15);
+    }
+
+    /* Printable A4 Sheet */
+    #printable-sheet { display: none; }
+
+    @media print {
+      body { background: white !important; color: black !important; padding: 0 !important; }
+      header, .tabs, main { display: none !important; }
+      #printable-sheet { display: block !important; font-family: Arial, sans-serif; color: #000; }
+      .print-page { page-break-after: always; padding: 8mm; }
+      .print-page:last-child { page-break-after: auto; }
+      .p-box { border: 1.5px solid #475569; border-radius: 6px; padding: 8px 12px; margin-bottom: 8px; }
+      .p-line { border-bottom: 1px solid #94a3b8; height: 24px; font-size: 11px; color: #475569; display: flex; align-items: flex-end; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER LIMPO -->
+  <header>
+    <div class="header-wrap">
+      <div class="brand">
+        <span>🚀 Leitura em Ação</span>
+        <span id="hdr-name" style="color: var(--amber); font-weight: 600; font-size: 1rem;"></span>
+      </div>
+      <div class="top-badges">
+        <div class="pill green">🖥️ PC: <span id="hdr-pc">0h 00m</span> / <span id="hdr-pc-max">6h</span></div>
+        <div class="pill amber">💰 Mesada: R$ <span id="hdr-money">0,00</span></div>
+        <button class="btn btn-green" style="padding: 6px 14px; border-radius: 999px; font-size: 0.85rem;" onclick="shareWithUncle()">
+          📲 Enviar Placar pro Tio
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ABAS SIMPLES -->
+  <nav class="tabs">
+    <button class="tab active" onclick="openTab('dashboard')">1. Painel da Semana</button>
+    <button class="tab" onclick="openTab('generator')">2. Criar Missão</button>
+    <button class="tab" onclick="openTab('grader')">3. Corrigir Redação</button>
+    <button class="tab" onclick="openTab('settings')">4. Histórico & Ajustes</button>
+  </nav>
+
+  <main>
+
+    <!-- =====================================================================
+         ABA 1: PAINEL DA SEMANA (LIMPO E DIRETO)
+         ===================================================================== -->
+    <section id="panel-dashboard" class="panel active">
+      <div class="grid-2">
+
+        <!-- HORAS DE PC -->
+        <div class="card">
+          <div class="card-title">
+            <span>🖥️ Horas de PC (Fim de Semana)</span>
+            <span class="sub-text" id="dash-pc-rest">Disponível: 0h 00m</span>
+          </div>
+
+          <div class="big-stat" style="color: #34d399;" id="dash-pc-total">0h 00m</div>
+          <div class="sub-text">Meta máxima: <span id="dash-pc-cap">6h 00m</span> (Ouro = +90m | Prata = +60m | Bronze = +30m)</div>
+
+          <div class="bar-bg">
+            <div class="bar-fill green" id="bar-pc" style="width: 0%;"></div>
+          </div>
+
+          <!-- Timer Compacto -->
+          <div class="timer-box">
+            <div class="sub-text" id="timer-msg">Timer de Uso (avisa quando faltam 15 min e 5 min)</div>
+            <div class="timer-clock" id="timer-clock">01:00:00</div>
+            <div class="btn-row" style="justify-content: center; margin-bottom: 8px;">
+              <button class="btn btn-ghost" onclick="setTimer(30)">30m</button>
+              <button class="btn btn-ghost" onclick="setTimer(60)">1h</button>
+              <button class="btn btn-ghost" onclick="setTimer(90)">1h30</button>
+              <button class="btn btn-green" id="btn-timer-start" onclick="toggleTimer()">▶️ Iniciar</button>
+            </div>
+            <div class="btn-row" style="justify-content: center;">
+              <button class="btn btn-amber" onclick="addPunctualBonus()">✅ Saiu no horário (+15m)</button>
+              <button class="btn btn-ghost" style="color: #f87171;" onclick="addOvertimePenalty()">⚠️ Passou do tempo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MESADA DA SEMANA -->
+        <div class="card">
+          <div class="card-title">
+            <span>💰 Mesada da Semana</span>
+            <span class="sub-text">Máximo: R$ <span id="dash-money-cap">30,00</span></span>
+          </div>
+
+          <div class="big-stat" style="color: #fbbf24;" id="dash-money-total">R$ 0,00</div>
+          <div class="sub-text">Complete as etapas abaixo durante a semana:</div>
+
+          <div class="bar-bg">
+            <div class="bar-fill amber" id="bar-money" style="width: 0%;"></div>
+          </div>
+
+          <!-- Hábitos Base (R$ 15) -->
+          <label class="check-row" id="row-kumon">
+            <div class="check-left">
+              <input type="checkbox" id="chk-kumon" onchange="toggleHabit()" />
+              <span>Kumon da semana em dia</span>
+            </div>
+            <span class="sub-text">Base</span>
+          </label>
+
+          <label class="check-row" id="row-school">
+            <div class="check-left">
+              <input type="checkbox" id="chk-school" onchange="toggleHabit()" />
+              <span>Tarefas da escola e reforço feitos</span>
+            </div>
+            <span class="sub-text">Base</span>
+          </label>
+
+          <label class="check-row" id="row-pc">
+            <div class="check-left">
+              <input type="checkbox" id="chk-pc" onchange="toggleHabit()" />
+              <span>Desligou o PC no horário sem briga</span>
+            </div>
+            <span class="sub-text">+R$ <span id="lbl-base-money">15</span> (os 3 marcados)</span>
+          </label>
+
+          <!-- Metas Automáticas de Redação -->
+          <div class="check-row" id="row-goal-essays" style="cursor: default;">
+            <div class="check-left">
+              <span id="ico-essays">⬜</span>
+              <span>Entregar <strong id="lbl-goal-essays">3</strong> redações com nota 60+</span>
+            </div>
+            <strong style="color: #fbbf24;">+R$ <span id="lbl-essays-money">10</span> (<span id="txt-essays-prog">0/3</span>)</strong>
+          </div>
+
+          <div class="check-row" id="row-goal-90" style="cursor: default;">
+            <div class="check-left">
+              <span id="ico-90">⬜</span>
+              <span>Pelo menos 1 redação nota 90+</span>
+            </div>
+            <strong style="color: #c4b5fd;">+R$ <span id="lbl-exc-money">5</span></strong>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- LISTA DE REDAÇÕES DA SEMANA -->
+      <div class="card">
+        <div class="card-title">
+          <span>📋 Redações Desta Semana</span>
+          <div class="btn-row">
+            <a class="btn btn-ghost" href="Ficha_Missao_e_Redacao_A4.pdf" target="_blank">📄 PDF Ficha de Redação</a>
+            <a class="btn btn-ghost" href="Contrato_do_Jogador_Regras_e_Mesada_A4.pdf" target="_blank">📜 PDF Contrato e Regras</a>
+            <button class="btn" onclick="openTab('grader')">+ Corrigir Redação</button>
+          </div>
+        </div>
+        <div id="week-essays-list"></div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         ABA 2: CRIAR MISSÃO (SIMPLES E RÁPIDO)
+         ===================================================================== -->
+    <section id="panel-generator" class="panel">
+      <div class="grid-2">
+
+        <div class="card">
+          <div class="card-title"><span>1. Sobre a Leitura</span></div>
+
+          <label>O que ele leu hoje? (Mangá, Gibi, Livro ou Conto)</label>
+          <input type="text" id="gen-title" placeholder="Ex.: Naruto Cap. 12 / Turma da Mônica" />
+
+          <label>Temas rápidos (clique ou escreva abaixo):</label>
+          <div class="btn-row" style="margin-bottom: 10px;">
+            <span class="chip" onclick="quickTheme('Ajudar um amigo em um momento difícil', ['amizade','perigo','ajuda'])">🤝 Amizade</span>
+            <span class="chip" onclick="quickTheme('Não desistir diante de um grande desafio', ['desafio','esforço','vitória'])">🔥 Superação</span>
+            <span class="chip" onclick="quickTheme('Aprender com um erro ou teimosia', ['escolha','erro','lição'])">⚠️ Erro e Lição</span>
+            <span class="chip" onclick="quickTheme('Cumprir uma promessa importante', ['promessa','coragem','confiança'])">🛡️ Promessa</span>
+          </div>
+
+          <label>O que aconteceu de principal no capítulo?</label>
+          <textarea id="gen-summary" rows="2" placeholder="Ex.: O personagem quase perdeu a prova, mas teve calma e ajudou a equipe."></textarea>
+
+          <div class="grid-2" style="gap: 10px;">
+            <div>
+              <label>Nível da Leitura</label>
+              <select id="gen-level">
+                <option value="bronze">Bronze (1 Gibi / 1 Cap. Mangá)</option>
+                <option value="prata" selected>Prata (2-3 Caps. / Cap. Livro)</option>
+                <option value="ouro">Ouro (+15m: Conto / Livro s/ fig.)</option>
+              </select>
+            </div>
+            <div>
+              <label>Tipo de Missão (Progressão 6º/7º Ano + Kumon F1)</label>
+              <select id="gen-phase">
+                <option value="fase1">Fase 1: Narrativa do Capítulo (Causa → Conflito → Solução)</option>
+                <option value="fase2">Fase 2: Carta ou 1ª Pessoa (Estilo CP2 / CAp UERJ)</option>
+                <option value="fase3">Fase 3: História Original c/ a Mesma Lição (Estilo CMRJ)</option>
+                <option value="fase4">Fase 4: Crônica Reflexiva / Opinião (Transição F1 → F2/G)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn" onclick="buildMissionLocal()">⚡ Gerar Missão</button>
+            <button class="btn btn-purple" id="btn-gen-ai" onclick="buildMissionAI()">🤖 Gerar com IA</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span>2. Missão Pronta (Âncora Anti-Fuga)</span></div>
+
+          <label>Comando da Redação (O que ele deve responder):</label>
+          <textarea id="out-prompt" rows="3"></textarea>
+
+          <label>3 Palavras Obrigatórias (Para ele usar e sublinhar no papel):</label>
+          <div class="grid-3">
+            <input type="text" id="out-kw1" value="desafio" />
+            <input type="text" id="out-kw2" value="esforço" />
+            <input type="text" id="out-kw3" value="vitória" />
+          </div>
+
+          <div class="btn-row" style="margin-top: 8px;">
+            <button class="btn btn-amber" onclick="printCustomSheet()">🖨️ Imprimir Ficha A4 Preenchida</button>
+            <button class="btn btn-green" onclick="sendToGrader()">➡️ Ir para Correção</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         ABA 3: CORRIGIR REDAÇÃO (ACEITA FOTO E PDF ESCANEADO + RUBRICA LIMPA)
+         ===================================================================== -->
+    <section id="panel-grader" class="panel">
+      <div class="grid-2">
+
+        <!-- UPLOAD DE FOTO OU PDF ESCANEADO -->
+        <div class="card">
+          <div class="card-title"><span>1. Arquivo da Redação (Foto ou PDF Escaneado)</span></div>
+
+          <div class="grid-2" style="gap: 10px;">
+            <div>
+              <label>O que ele leu:</label>
+              <input type="text" id="grd-title" placeholder="Ex.: Naruto Cap. 12" />
+            </div>
+            <div>
+              <label>Nível da Leitura:</label>
+              <select id="grd-level" onchange="calcScore()">
+                <option value="bronze">Bronze</option>
+                <option value="prata" selected>Prata</option>
+                <option value="ouro">Ouro (+15 min bônus)</option>
+              </select>
+            </div>
+          </div>
+
+          <label>3 Palavras-Chave Combinadas:</label>
+          <div class="grid-3">
+            <input type="text" id="grd-kw1" placeholder="Palavra 1" />
+            <input type="text" id="grd-kw2" placeholder="Palavra 2" />
+            <input type="text" id="grd-kw3" placeholder="Palavra 3" />
+          </div>
+
+          <!-- ZONA DE UPLOAD QUE ACEITA IMAGEM E PDF -->
+          <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-upload').click()">
+            <div style="font-weight: 700; color: #93c5fd; margin-bottom: 4px;">
+              📎 Clique ou arraste a Foto (.jpg, .png) ou Scan (.pdf) da Redação
+            </div>
+            <div class="sub-text" id="file-name-label">Nenhum arquivo selecionado (opcional)</div>
+            <input
+              type="file"
+              id="file-upload"
+              accept="image/*,application/pdf,.pdf"
+              style="display: none;"
+              onchange="handleFileSelect(event)"
+            />
+          </div>
+
+          <!-- PREVIEW DE IMAGEM OU PDF -->
+          <div class="preview-area" id="preview-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span class="sub-text" id="preview-type-badge">Visualização do arquivo</span>
+              <button class="btn btn-ghost" style="padding: 4px 10px; font-size: 0.78rem;" onclick="clearUploadedFile()">✖ Remover arquivo</button>
+            </div>
+            <img id="preview-img" style="display: none;" alt="Redação" />
+            <iframe id="preview-pdf" style="display: none;" title="PDF Escaneado"></iframe>
+          </div>
+
+          <div class="btn-row" style="margin-top: 10px;">
+            <button class="btn btn-purple" id="btn-ai-read" onclick="gradeWithAI()" style="width: 100%;">
+              🤖 Ler Foto / PDF com IA e Sugerir Notas
+            </button>
+          </div>
+          <div id="ai-status" class="sub-text" style="margin-top: 6px; color: #c4b5fd;"></div>
+        </div>
+
+        <!-- RUBRICA COMPACTA DE 5 CRITÉRIOS (0, 5, 10, 15, 20) -->
+        <div class="card">
+          <div class="card-title">
+            <span>2. Rigor de Concurso (0 a 20 pts por critério)</span>
+            <span class="pill amber" id="live-total-pill">80 / 100 pts</span>
+          </div>
+
+          <div class="crit-item">
+            <span class="crit-name">1. Tema, Profundidade e Palavras-Chave</span>
+            <div class="crit-btns" data-c="1">
+              <button class="pts-btn" onclick="setCrit(1, 0)">0</button>
+              <button class="pts-btn" onclick="setCrit(1, 5)">5</button>
+              <button class="pts-btn" onclick="setCrit(1, 10)">10</button>
+              <button class="pts-btn" onclick="setCrit(1, 15)">15</button>
+              <button class="pts-btn sel-20" onclick="setCrit(1, 20)">20</button>
+            </div>
+          </div>
+
+          <div class="crit-item">
+            <span class="crit-name">2. Estrutura (4 Parágrafos Desenvolvidos)</span>
+            <div class="crit-btns" data-c="2">
+              <button class="pts-btn" onclick="setCrit(2, 0)">0</button>
+              <button class="pts-btn" onclick="setCrit(2, 5)">5</button>
+              <button class="pts-btn sel-10" onclick="setCrit(2, 10)">10</button>
+              <button class="pts-btn" onclick="setCrit(2, 15)">15</button>
+              <button class="pts-btn" onclick="setCrit(2, 20)">20</button>
+            </div>
+          </div>
+
+          <div class="crit-item">
+            <span class="crit-name">3. Linhas (15 a 25), Margem e Letra</span>
+            <div class="crit-btns" data-c="3">
+              <button class="pts-btn" onclick="setCrit(3, 0)">0</button>
+              <button class="pts-btn" onclick="setCrit(3, 5)">5</button>
+              <button class="pts-btn" onclick="setCrit(3, 10)">10</button>
+              <button class="pts-btn" onclick="setCrit(3, 15)">15</button>
+              <button class="pts-btn sel-20" onclick="setCrit(3, 20)">20</button>
+            </div>
+          </div>
+
+          <div class="crit-item">
+            <span class="crit-name">4. Coesão, Sem Repetição e Conectivos</span>
+            <div class="crit-btns" data-c="4">
+              <button class="pts-btn" onclick="setCrit(4, 0)">0</button>
+              <button class="pts-btn" onclick="setCrit(4, 5)">5</button>
+              <button class="pts-btn sel-10" onclick="setCrit(4, 10)">10</button>
+              <button class="pts-btn" onclick="setCrit(4, 15)">15</button>
+              <button class="pts-btn" onclick="setCrit(4, 20)">20</button>
+            </div>
+          </div>
+
+          <div class="crit-item">
+            <span class="crit-name">5. Gramática, Vírgulas e Concordância</span>
+            <div class="crit-btns" data-c="5">
+              <button class="pts-btn" onclick="setCrit(5, 0)">0</button>
+              <button class="pts-btn" onclick="setCrit(5, 5)">5</button>
+              <button class="pts-btn" onclick="setCrit(5, 10)">10</button>
+              <button class="pts-btn" onclick="setCrit(5, 15)">15</button>
+              <button class="pts-btn sel-20" onclick="setCrit(5, 20)">20</button>
+            </div>
+          </div>
+
+          <!-- Lista de Erros Específicos apontados pela IA -->
+          <div id="ai-errors-box" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--red); border-radius: 8px; padding: 10px 12px; margin: 10px 0; font-size: 0.84rem;">
+            <strong style="color: #fca5a5;">🔍 Trechos para Corrigir no Papel:</strong>
+            <ul id="ai-errors-list" style="margin-top: 6px; padding-left: 18px; color: #f8fafc;"></ul>
+          </div>
+
+          <label style="margin-top: 10px;">Resumo da Correção / Tarefa da 2ª Chance:</label>
+          <input type="text" id="grd-feedback" placeholder="Ex.: Corrigir vírgulas entre sujeito e verbo e trocar 'onde'." />
+
+          <div class="list-item" style="border-color: var(--green); background: rgba(16,185,129,0.1); margin: 12px 0;">
+            <div>
+              <strong id="reward-tier-text">🥇 Nível Ouro (80 pts)</strong>
+              <div class="sub-text" id="reward-sub-text">Conta para a mesada!</div>
+            </div>
+            <div style="font-size: 1.3rem; font-weight: 800; color: #34d399;" id="reward-mins-text">+90 min PC</div>
+          </div>
+
+          <button class="btn btn-green" style="width: 100%; padding: 13px; font-size: 1rem;" onclick="saveEssay()">
+            ✅ Salvar Redação e Creditar Horas
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         ABA 4: HISTÓRICO & AJUSTES
+         ===================================================================== -->
+    <section id="panel-settings" class="panel">
+      <div class="grid-2">
+
+        <div class="card">
+          <div class="card-title"><span>⚙️ Ajustes de Metas e Valores</span></div>
+
+          <div class="grid-2" style="gap: 10px;">
+            <div>
+              <label>Nome do Primo</label>
+              <input type="text" id="cfg-name" />
+            </div>
+            <div>
+              <label>Meta de Redações / Semana</label>
+              <input type="number" id="cfg-goal" min="1" max="7" />
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap: 10px;">
+            <div>
+              <label>Teto de PC no FDS (Horas)</label>
+              <input type="number" id="cfg-pc-max" min="1" max="15" step="0.5" />
+            </div>
+            <div>
+              <label>Mesada Base Hábitos (R$)</label>
+              <input type="number" id="cfg-m-base" />
+            </div>
+          </div>
+
+          <div class="grid-2" style="gap: 10px;">
+            <div>
+              <label>Bônus Meta Redações (R$)</label>
+              <input type="number" id="cfg-m-essays" />
+            </div>
+            <div>
+              <label>Bônus Nota 90+ (R$)</label>
+              <input type="number" id="cfg-m-exc" />
+            </div>
+          </div>
+
+          <label>Chave API Google Gemini (Clique em "Copy key" no Google AI Studio e cole aqui):</label>
+          <input type="password" id="cfg-api-key" placeholder="AQ... ou AIzaSy..." />
+
+          <div class="btn-row">
+            <button class="btn btn-green" onclick="saveConfig()">💾 Salvar Ajustes</button>
+            <button class="btn btn-purple" id="btn-test-key" onclick="testApiKey()">🧪 Testar Chave</button>
+            <button class="btn btn-amber" onclick="finishWeek()">📅 Fechar Semana e Zerar para Próxima</button>
+          </div>
+
+          <div class="btn-row" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+            <button class="btn btn-ghost" onclick="exportJSON()">⬇️ Exportar Backup</button>
+            <label class="btn btn-ghost" style="margin: 0; cursor: pointer;">
+              ⬆️ Importar Backup
+              <input type="file" accept=".json" style="display: none;" onchange="importJSON(event)" />
+            </label>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span>🏆 Semanas Anteriores</span></div>
+          <div id="past-weeks-list"></div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOLHA A4 PARA IMPRESSÃO DIRETA -->
+  <div id="printable-sheet">
+    <div class="print-page">
+      <div style="background:#1e3a8a;color:white;padding:10px 14px;border-radius:6px;margin-bottom:10px;display:flex;justify-content:space-between;">
+        <strong>MISSÃO DE LEITURA E MAPA ANTI-FUGA</strong>
+        <span>Data: ___/___/2026</span>
+      </div>
+      <div class="p-box">
+        <strong>1. LEITURA DE HOJE:</strong> <span id="p-title"></span>
+      </div>
+      <div class="p-box" style="background:#fef3c7;border-color:#d97706;">
+        <div><strong>2. 🎯 MISSÃO DA REDAÇÃO:</strong> <span id="p-prompt"></span></div>
+        <div style="margin-top:6px;">
+          <strong>🔑 3 PALAVRAS OBRIGATÓRIAS (use e sublinhe):</strong>
+          <span id="p-kw1" style="border:1px solid #000;padding:2px 8px;margin-left:6px;background:#fff;"></span>
+          <span id="p-kw2" style="border:1px solid #000;padding:2px 8px;margin-left:6px;background:#fff;"></span>
+          <span id="p-kw3" style="border:1px solid #000;padding:2px 8px;margin-left:6px;background:#fff;"></span>
+        </div>
+      </div>
+      <div class="p-box">
+        <strong>🟢 PARÁGRAFO 1 — COMEÇO (3 a 5 linhas):</strong> Quem é o personagem, onde está e como tudo começou?
+        <div class="p-line"></div><div class="p-line"></div>
+      </div>
+      <div class="p-box">
+        <strong>🟡 PARÁGRAFO 2 — O PROBLEMA (4 a 6 linhas):</strong> Qual problema ou desafio surgiu de repente?
+        <div class="p-line"></div><div class="p-line"></div>
+      </div>
+      <div class="p-box">
+        <strong>🟠 PARÁGRAFO 3 — AÇÃO DECISIVA (4 a 6 linhas):</strong> O que o personagem fez no momento mais difícil?
+        <div class="p-line"></div><div class="p-line"></div>
+      </div>
+      <div class="p-box">
+        <strong>🔵 PARÁGRAFO 4 — FIM E LIÇÃO (3 a 5 linhas):</strong> Como resolveu e o que aprendeu?
+        <div class="p-line"></div><div class="p-line"></div>
+      </div>
+    </div>
+    <div class="print-page">
+      <div style="background:#1e3a8a;color:white;padding:8px 14px;border-radius:6px;margin-bottom:10px;display:flex;justify-content:space-between;">
+        <strong>FOLHA DE REDAÇÃO (15 A 25 LINHAS)</strong>
+        <span>Sublinhe as 3 palavras-chave!</span>
+      </div>
+      <div style="margin-bottom:8px;font-weight:bold;">TÍTULO: _______________________________________________________________</div>
+      <div id="p-lines"></div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'leitura_em_acao_state_v1';
+
+    // Chave codificada para não ser bloqueada por robôs ao publicar no GitHub Pages
+    const DEFAULT_API_KEY = atob('ZzJBdmRZLVk5cUlEQ3BKRS1nTVZ4dGF5dEkwMmdYM3FyMllFeV9ydHJnVUk2TlI4YkEuUUE=').split('').reverse().join('');
+
+    const defaultState = {
+      settings: {
+        playerName: '',
+        weeklyGoal: 3,
+        maxPcHours: 6,
+        baseAllowance: 15,
+        essaysAllowance: 10,
+        excAllowance: 5,
+        geminiApiKey: DEFAULT_API_KEY
+      },
+      currentWeek: {
+        habits: { kumon: false, school: false, pcRespect: false },
+        bonusPcMinutes: 0,
+        usedPcMinutes: 0,
+        essays: []
+      },
+      totalXp: 0,
+      pastWeeks: []
+    };
+
+    let state = loadState();
+    let rubric = { 1: 20, 2: 10, 3: 20, 4: 10, 5: 20 };
+
+    // Uploaded file state (supports image/* AND application/pdf)
+    let uploadedFileDataUrl = '';
+    let uploadedFileMime = '';
+    let uploadedFileName = '';
+
+    // Timer state
+    let timerSecs = 3600;
+    let timerInitSecs = 3600;
+    let timerRef = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return JSON.parse(JSON.stringify(defaultState));
+        const p = JSON.parse(raw);
+        const mergedSettings = { ...defaultState.settings, ...(p.settings || {}) };
+        if (!mergedSettings.geminiApiKey) {
+          mergedSettings.geminiApiKey = DEFAULT_API_KEY;
+        }
+        return {
+          ...defaultState,
+          ...p,
+          settings: mergedSettings,
+          currentWeek: {
+            ...defaultState.currentWeek,
+            ...(p.currentWeek || {}),
+            habits: { ...defaultState.currentWeek.habits, ...((p.currentWeek || {}).habits || {}) }
+          }
+        };
+      } catch (e) {
+        return JSON.parse(JSON.stringify(defaultState));
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      render();
+    }
+
+    function openTab(name) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('panel-' + name).classList.add('active');
+      const idx = { dashboard: 0, generator: 1, grader: 2, settings: 3 }[name];
+      document.querySelectorAll('.tab')[idx].classList.add('active');
+    }
+
+    function fmtMins(m) {
+      const mins = Math.max(0, Math.round(m));
+      return `${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, '0')}m`;
+    }
+
+    function fmtMoney(v) {
+      return Number(v || 0).toFixed(2).replace('.', ',');
+    }
+
+    function getMetrics() {
+      const essays = state.currentWeek.essays || [];
+      let essayMins = 0, approved = 0, has90 = false;
+      essays.forEach(e => {
+        essayMins += (e.unlockedMinutes || 0);
+        if (e.score >= 60) approved++;
+        if (e.score >= 90) has90 = true;
+      });
+
+      const capMins = Math.round((state.settings.maxPcHours || 6) * 60);
+      const unlockedMins = Math.min(capMins, Math.max(0, essayMins + (state.currentWeek.bonusPcMinutes || 0)));
+      const remainMins = Math.max(0, unlockedMins - (state.currentWeek.usedPcMinutes || 0));
+
+      const h = state.currentWeek.habits;
+      const habitsOk = Boolean(h.kumon && h.school && h.pcRespect);
+      const goalOk = approved >= (state.settings.weeklyGoal || 3);
+
+      let money = 0;
+      if (habitsOk) money += Number(state.settings.baseAllowance || 15);
+      if (goalOk) money += Number(state.settings.essaysAllowance || 10);
+      if (has90) money += Number(state.settings.excAllowance || 5);
+
+      const maxMoney =
+        Number(state.settings.baseAllowance || 15) +
+        Number(state.settings.essaysAllowance || 10) +
+        Number(state.settings.excAllowance || 5);
+
+      return { unlockedMins, capMins, remainMins, approved, has90, habitsOk, goalOk, money, maxMoney };
+    }
+
+    function render() {
+      const m = getMetrics();
+      const goal = state.settings.weeklyGoal || 3;
+
+      // Header
+      document.getElementById('hdr-name').textContent = state.settings.playerName ? `• ${state.settings.playerName}` : '';
+      document.getElementById('hdr-pc').textContent = fmtMins(m.unlockedMins);
+      document.getElementById('hdr-pc-max').textContent = `${state.settings.maxPcHours}h`;
+      document.getElementById('hdr-money').textContent = fmtMoney(m.money);
+
+      // PC Card
+      document.getElementById('dash-pc-total').textContent = fmtMins(m.unlockedMins);
+      document.getElementById('dash-pc-cap').textContent = fmtMins(m.capMins);
+      document.getElementById('dash-pc-rest').textContent = `Disponível: ${fmtMins(m.remainMins)}`;
+      document.getElementById('bar-pc').style.width = `${m.capMins ? Math.min(100, (m.unlockedMins / m.capMins) * 100) : 0}%`;
+
+      // Money Card
+      document.getElementById('dash-money-total').textContent = `R$ ${fmtMoney(m.money)}`;
+      document.getElementById('dash-money-cap').textContent = fmtMoney(m.maxMoney);
+      document.getElementById('bar-money').style.width = `${m.maxMoney ? Math.min(100, (m.money / m.maxMoney) * 100) : 0}%`;
+
+      document.getElementById('chk-kumon').checked = state.currentWeek.habits.kumon;
+      document.getElementById('chk-school').checked = state.currentWeek.habits.school;
+      document.getElementById('chk-pc').checked = state.currentWeek.habits.pcRespect;
+
+      document.getElementById('row-kumon').classList.toggle('done', state.currentWeek.habits.kumon);
+      document.getElementById('row-school').classList.toggle('done', state.currentWeek.habits.school);
+      document.getElementById('row-pc').classList.toggle('done', state.currentWeek.habits.pcRespect);
+
+      document.getElementById('lbl-base-money').textContent = state.settings.baseAllowance;
+      document.getElementById('lbl-essays-money').textContent = state.settings.essaysAllowance;
+      document.getElementById('lbl-exc-money').textContent = state.settings.excAllowance;
+      document.getElementById('lbl-goal-essays').textContent = goal;
+
+      document.getElementById('txt-essays-prog').textContent = `${m.approved}/${goal}`;
+      document.getElementById('ico-essays').textContent = m.goalOk ? '✅' : '⬜';
+      document.getElementById('row-goal-essays').classList.toggle('done', m.goalOk);
+
+      document.getElementById('ico-90').textContent = m.has90 ? '🏆' : '⬜';
+      document.getElementById('row-goal-90').classList.toggle('done', m.has90);
+
+      // Week Essays List
+      const listEl = document.getElementById('week-essays-list');
+      const essays = state.currentWeek.essays || [];
+      if (essays.length === 0) {
+        listEl.innerHTML = `<div class="sub-text" style="text-align:center;padding:16px;">Nenhuma redação lançada nesta semana ainda.</div>`;
+      } else {
+        listEl.innerHTML = essays.map((e, i) => `
+          <div class="list-item">
+            <div>
+              <strong>#${i + 1} ${esc(e.readingTitle)}</strong>
+              <span style="margin-left:8px;color:${e.score >= 80 ? '#fbbf24' : (e.score >= 60 ? '#34d399' : '#f87171')};font-weight:700;">
+                ${e.score} pts
+              </span>
+              ${e.fileName ? `<span class="sub-text" style="margin-left:8px;">📎 ${esc(e.fileName)}</span>` : ''}
+              ${e.feedback ? `<div class="sub-text">💬 ${esc(e.feedback)}</div>` : ''}
+            </div>
+            <div class="btn-row">
+              <span class="pill green" style="padding:4px 10px;font-size:0.8rem;">+${e.unlockedMinutes}m PC</span>
+              <button class="btn btn-ghost" style="padding:4px 8px;" onclick="removeEssay(${i})">🗑️</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Settings Tab
+      document.getElementById('cfg-name').value = state.settings.playerName || '';
+      document.getElementById('cfg-goal').value = state.settings.weeklyGoal || 3;
+      document.getElementById('cfg-pc-max').value = state.settings.maxPcHours || 6;
+      document.getElementById('cfg-m-base').value = state.settings.baseAllowance ?? 15;
+      document.getElementById('cfg-m-essays').value = state.settings.essaysAllowance ?? 10;
+      document.getElementById('cfg-m-exc').value = state.settings.excAllowance ?? 5;
+      document.getElementById('cfg-api-key').value = state.settings.geminiApiKey || '';
+
+      const pwEl = document.getElementById('past-weeks-list');
+      const pw = state.pastWeeks || [];
+      pwEl.innerHTML = pw.length === 0
+        ? `<div class="sub-text">Nenhuma semana fechada ainda.</div>`
+        : pw.map(w => `
+            <div class="list-item">
+              <div>
+                <strong>Semana ${esc(w.closedAt)}</strong>
+                <div class="sub-text">${w.approvedCount} redações aprovadas</div>
+              </div>
+              <div class="btn-row">
+                <span class="pill green" style="font-size:0.8rem;">${fmtMins(w.unlockedMinutes)}</span>
+                <span class="pill amber" style="font-size:0.8rem;">R$ ${fmtMoney(w.allowanceEarned)}</span>
+              </div>
+            </div>
+          `).join('');
+
+      calcScore();
+    }
+
+    function toggleHabit() {
+      state.currentWeek.habits.kumon = document.getElementById('chk-kumon').checked;
+      state.currentWeek.habits.school = document.getElementById('chk-school').checked;
+      state.currentWeek.habits.pcRespect = document.getElementById('chk-pc').checked;
+      saveState();
+    }
+
+    // =========================================================================
+    // GERADOR DE MISSÃO
+    // =========================================================================
+    function quickTheme(summary, kws) {
+      document.getElementById('gen-summary').value = summary;
+      document.getElementById('out-kw1').value = kws[0];
+      document.getElementById('out-kw2').value = kws[1];
+      document.getElementById('out-kw3').value = kws[2];
+      buildMissionLocal();
+    }
+
+    function buildMissionLocal() {
+      const title = document.getElementById('gen-title').value.trim() || 'o capítulo lido';
+      const summary = document.getElementById('gen-summary').value.trim() || 'o desafio principal do personagem';
+      const phase = document.getElementById('gen-phase').value;
+
+      let prompt = '';
+      if (phase === 'fase1') {
+        prompt = `Narre os acontecimentos de "${title}" (${summary}) em 4 parágrafos bem divididos. Regra Kumon F1: use pronomes para não repetir o nome do personagem e conectivos de causa/consequência (por isso, portanto, porém).`;
+      } else if (phase === 'fase2') {
+        prompt = `Escreva em 1ª pessoa ou em formato de Carta como se você fosse um personagem de "${title}" explicando por que tomou sua decisão diante de: ${summary}.`;
+      } else if (phase === 'fase3') {
+        prompt = `Crie uma história original (com personagens do mundo real) que apresente um conflito parecido com o de "${title}" (${summary}) e chegue à mesma conclusão moral.`;
+      } else {
+        prompt = `A partir da situação vista em "${title}" (${summary}), escreva uma crônica reflexiva: conte rapidamente um exemplo no início e defenda sua opinião sobre por que essa atitude traz boas ou más consequências na vida real.`;
+      }
+      document.getElementById('out-prompt').value = prompt;
+    }
+
+    async function buildMissionAI() {
+      const key = (state.settings.geminiApiKey || DEFAULT_API_KEY).trim();
+      const title = document.getElementById('gen-title').value.trim() || 'Leitura do dia';
+      const summary = document.getElementById('gen-summary').value.trim() || 'Aventura principal';
+      const phase = document.getElementById('gen-phase').value;
+      const btn = document.getElementById('btn-gen-ai');
+      btn.disabled = true;
+      btn.textContent = '⏳ Gerando...';
+
+      try {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${encodeURIComponent(key)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: `O aluno já está no 6º ano, faz Kumon Português F1 (conjunções, pronomes e coesão) e Matemática G, tem TEA 2 e se prepara para passar em CMRJ/CP2/CAp UERJ no próximo ano. Ele leu "${title}" (${summary}), fase "${phase}". Crie uma proposta curta, direta e madura de redação (sem infantilizar) que exija aplicar coesão do Kumon F1. Retorne JSON: {"prompt": "...", "keywords": ["p1","p2","p3"]}` }] }],
+            generationConfig: { responseMimeType: 'application/json' }
+          })
+        });
+        const data = await resp.json();
+        const parts = data.candidates?.[0]?.content?.parts || [];
+        const rawText = parts[parts.length - 1]?.text || '{}';
+        const res = JSON.parse(rawText);
+        document.getElementById('out-prompt').value = res.prompt || '';
+        if (res.keywords) {
+          document.getElementById('out-kw1').value = res.keywords[0] || '';
+          document.getElementById('out-kw2').value = res.keywords[1] || '';
+          document.getElementById('out-kw3').value = res.keywords[2] || '';
+        }
+      } catch (e) {
+        buildMissionLocal();
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🤖 Gerar com IA';
+      }
+    }
+
+    function printCustomSheet() {
+      if (!document.getElementById('out-prompt').value.trim()) buildMissionLocal();
+      document.getElementById('p-title').textContent = document.getElementById('gen-title').value || '______________________';
+      document.getElementById('p-prompt').textContent = document.getElementById('out-prompt').value;
+      document.getElementById('p-kw1').textContent = document.getElementById('out-kw1').value || '________';
+      document.getElementById('p-kw2').textContent = document.getElementById('out-kw2').value || '________';
+      document.getElementById('p-kw3').textContent = document.getElementById('out-kw3').value || '________';
+
+      let lines = '';
+      for (let i = 1; i <= 25; i++) {
+        const n = String(i).padStart(2, '0');
+        lines += `<div class="p-line" style="${i === 15 ? 'background:#dcfce7;font-weight:bold;' : ''}">${n} ${i === 15 ? '— META MÍNIMA (15 LINHAS)' : ''}</div>`;
+      }
+      document.getElementById('p-lines').innerHTML = lines;
+      window.print();
+    }
+
+    function sendToGrader() {
+      if (!document.getElementById('out-prompt').value.trim()) buildMissionLocal();
+      document.getElementById('grd-title').value = document.getElementById('gen-title').value;
+      document.getElementById('grd-level').value = document.getElementById('gen-level').value;
+      document.getElementById('grd-kw1').value = document.getElementById('out-kw1').value;
+      document.getElementById('grd-kw2').value = document.getElementById('out-kw2').value;
+      document.getElementById('grd-kw3').value = document.getElementById('out-kw3').value;
+      calcScore();
+      openTab('grader');
+    }
+
+    // =========================================================================
+    // UPLOAD DE FOTO OU PDF ESCANEADO + CORREÇÃO
+    // =========================================================================
+    const dropZone = document.getElementById('drop-zone');
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        processUploadedFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    function handleFileSelect(event) {
+      const file = event.target.files?.[0];
+      if (file) processUploadedFile(file);
+    }
+
+    function processUploadedFile(file) {
+      const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+      const isImg = file.type.startsWith('image/');
+
+      if (!isPdf && !isImg) {
+        alert('Por favor, selecione uma Foto (.jpg, .png, .webp) ou um arquivo PDF escaneado (.pdf).');
+        return;
+      }
+
+      uploadedFileName = file.name;
+      uploadedFileMime = isPdf ? 'application/pdf' : (file.type || 'image/jpeg');
+      document.getElementById('file-name-label').textContent = `Arquivo carregado: ${file.name}`;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        uploadedFileDataUrl = e.target.result;
+        const container = document.getElementById('preview-container');
+        const imgEl = document.getElementById('preview-img');
+        const pdfEl = document.getElementById('preview-pdf');
+        const badgeEl = document.getElementById('preview-type-badge');
+
+        container.style.display = 'block';
+        if (isPdf) {
+          badgeEl.textContent = `📄 PDF Escaneado: ${file.name}`;
+          imgEl.style.display = 'none';
+          pdfEl.style.display = 'block';
+          pdfEl.src = uploadedFileDataUrl;
+        } else {
+          badgeEl.textContent = `📷 Imagem: ${file.name}`;
+          pdfEl.style.display = 'none';
+          imgEl.style.display = 'block';
+          imgEl.src = uploadedFileDataUrl;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearUploadedFile() {
+      uploadedFileDataUrl = '';
+      uploadedFileMime = '';
+      uploadedFileName = '';
+      document.getElementById('file-upload').value = '';
+      document.getElementById('file-name-label').textContent = 'Nenhum arquivo selecionado (opcional)';
+      document.getElementById('preview-container').style.display = 'none';
+      document.getElementById('preview-img').src = '';
+      document.getElementById('preview-pdf').src = '';
+      document.getElementById('ai-errors-box').style.display = 'none';
+      document.getElementById('ai-errors-list').innerHTML = '';
+    }
+
+    function setCrit(c, val) {
+      rubric[c] = val;
+      document.querySelectorAll(`.crit-btns[data-c="${c}"] .pts-btn`).forEach(btn => {
+        btn.className = 'pts-btn';
+        if (Number(btn.textContent) === val) {
+          btn.classList.add(`sel-${val}`);
+        }
+      });
+      calcScore();
+    }
+
+    function calcScore() {
+      const score = rubric[1] + rubric[2] + rubric[3] + rubric[4] + rubric[5];
+      const level = document.getElementById('grd-level').value;
+      let mins = 0, title = '', sub = '';
+
+      if (score >= 80) {
+        mins = 90;
+        title = `🥇 Nível Ouro (${score} pts)`;
+        sub = 'Excelente! Conta para a mesada.';
+      } else if (score >= 60) {
+        mins = 60;
+        title = `🥈 Nível Prata (${score} pts)`;
+        sub = 'Aprovada! Conta para a mesada.';
+      } else if (score >= 40) {
+        mins = 30;
+        title = `🥉 Nível Bronze (${score} pts) — 2ª Chance Ativa!`;
+        sub = 'Corrija os erros listados acima para subir para 60+ pts (Prata)!';
+      } else {
+        mins = 0;
+        title = `🔄 2ª Chance Obrigatória (${score} pts)`;
+        sub = 'Reescrever os trechos com erro para liberar as horas de PC.';
+      }
+
+      if (level === 'ouro' && score >= 60) {
+        mins += 15;
+        sub += ' (+15m Bônus Leitura Ouro)';
+      }
+
+      document.getElementById('live-total-pill').textContent = `${score} / 100 pts`;
+      document.getElementById('reward-tier-text').textContent = title;
+      document.getElementById('reward-sub-text').textContent = sub;
+      document.getElementById('reward-mins-text').textContent = `+${mins} min PC`;
+
+      return { score, mins };
+    }
+
+    async function gradeWithAI() {
+      const key = (state.settings.geminiApiKey || DEFAULT_API_KEY).trim();
+      if (!uploadedFileDataUrl) {
+        alert('Anexe primeiro a Foto ou o PDF escaneado da redação!');
+        return;
+      }
+
+      const status = document.getElementById('ai-status');
+      const btn = document.getElementById('btn-ai-read');
+      btn.disabled = true;
+      status.textContent = '⏳ Avaliando com rigor de Concurso + Kumon F1...';
+
+      const kws = [
+        document.getElementById('grd-kw1').value,
+        document.getElementById('grd-kw2').value,
+        document.getElementById('grd-kw3').value
+      ].filter(Boolean).join(', ');
+
+      const base64Data = uploadedFileDataUrl.split(',')[1];
+      const prompt = `Você é um corretor RIGOROSO de banca de concurso (CMRJ, Colégio Pedro II, CAp UERJ).
+Contexto do aluno: Ele JÁ está no 6º ano, faz Kumon de Português Nível F1 (onde já estuda pronomes/substituição para não repetir palavras, conjunções de causa/consequência/oposição e estrutura Sujeito-Predicado) e Kumon de Matemática Nível G. Nosso objetivo é puxar o nível dele para cima para passar no próximo ano.
+Leitura/Tema: "${document.getElementById('grd-title').value || 'Livre'}". ${kws ? `Palavras-chave exigidas: "${kws}".` : ''}
+
+Analise a redação manuscrita com alto nível de exigência (sem condescendência). Nota 20 só é dada se o critério estiver impecável. Use notas 0, 5, 10, 15 ou 20:
+
+1. crit1 (Tema e Maturidade das Ideias - 0, 5, 10, 15 ou 20): Se o enredo for infantil/raso para um aluno de 6º/7º ano, repetitivo ou faltar alguma palavra-chave exigida, dê no máximo 10.
+2. crit2 (Estrutura de 4 Parágrafos Lógicos - 0, 5, 10, 15 ou 20): Deve ter 4 parágrafos bem desenvolvidos (Situação Inicial, Conflito, Clímax, Desfecho Reflexivo). Se fizer vários micro-parágrafos curtos de 1 frase só ou repetir ideias já ditas no 1º parágrafo, dê no máximo 10.
+3. crit3 (Extensão 15+ linhas, Margem e Caligrafia - 0, 5, 10, 15 ou 20): Desconte se o texto for curto, sem recuo de parágrafo ou rasurado (dê 10 ou 15).
+4. crit4 (Coesão Kumon F1: Pronomes e Conectivos - 0, 5, 10, 15 ou 20): Cobrança direta do Estágio F1 do Kumon! Penalize severamente se ele repetir o nome do personagem várias vezes em vez de usar pronomes/sinônimos, se usar "onde" errado (quando não é lugar físico), ou se não usar conectivos variados (porém, portanto, por isso, no entanto). Com esses erros, dê 5 ou 10.
+5. crit5 (Gramática: Sujeito-Verbo, Pontuação e Concordância - 0, 5, 10, 15 ou 20): Penalize severamente vírgula proibida entre sujeito e verbo (ex: "O Pedro, era..."), frases longas coladas só com vírgula onde deveria haver ponto final, erros de concordância ("seus amigo"), mistura de tempos verbais e falta de maiúsculas/acentos. Com esses erros, dê 5 ou 10.
+
+Retorne APENAS um JSON válido neste formato:
+{
+  "crit1": number,
+  "crit2": number,
+  "crit3": number,
+  "crit4": number,
+  "crit5": number,
+  "feedback": "Diagnóstico direto cobrando aplicação do Kumon F1 (1 linha)",
+  "erros_especificos": [
+    "Citação exata do erro 1 na folha + como corrigir usando o que ele aprende no Kumon F1",
+    "Citação exata do erro 2 na folha + como corrigir",
+    "Citação exata do erro 3 na folha + como corrigir",
+    "Citação exata do erro 4 na folha + como corrigir"
+  ]
+}`;
+
+      try {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${encodeURIComponent(key)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: prompt },
+                { inlineData: { mimeType: uploadedFileMime || 'application/pdf', data: base64Data } }
+              ]
+            }],
+            generationConfig: { responseMimeType: 'application/json' }
+          })
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          throw new Error(data.error?.message || `Erro HTTP ${resp.status}`);
+        }
+        const parts = data.candidates?.[0]?.content?.parts || [];
+        const rawText = parts[parts.length - 1]?.text || '{}';
+        const res = JSON.parse(rawText);
+        [1, 2, 3, 4, 5].forEach(c => {
+          const val = Number(res[`crit${c}`]);
+          if ([0, 5, 10, 15, 20].includes(val)) setCrit(c, val);
+        });
+        if (res.feedback) document.getElementById('grd-feedback').value = res.feedback;
+        if (Array.isArray(res.erros_especificos) && res.erros_especificos.length > 0) {
+          document.getElementById('ai-errors-list').innerHTML = res.erros_especificos
+            .map(err => `<li style="margin-bottom: 4px;">${esc(err)}</li>`)
+            .join('');
+          document.getElementById('ai-errors-box').style.display = 'block';
+        }
+        status.textContent = '✅ Avaliação rigorosa concluída! Veja os trechos para corrigir ao lado.';
+      } catch (e) {
+        console.error(e);
+        status.textContent = '⚠️ Aviso da IA: ' + (e.message || 'Erro ao analisar o arquivo.');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function saveEssay() {
+      const { score, mins } = calcScore();
+      const title = document.getElementById('grd-title').value.trim() || 'Missão de Leitura';
+      const feedback = document.getElementById('grd-feedback').value.trim();
+
+      state.currentWeek.essays.push({
+        id: Date.now(),
+        date: new Date().toLocaleDateString('pt-BR'),
+        readingTitle: title,
+        score,
+        unlockedMinutes: mins,
+        feedback,
+        fileName: uploadedFileName
+      });
+
+      state.totalXp = (state.totalXp || 0) + score;
+      saveState();
+
+      document.getElementById('grd-title').value = '';
+      document.getElementById('grd-feedback').value = '';
+      clearUploadedFile();
+      openTab('dashboard');
+    }
+
+    function removeEssay(idx) {
+      if (!confirm('Remover esta redação?')) return;
+      state.currentWeek.essays.splice(idx, 1);
+      saveState();
+    }
+
+    // =========================================================================
+    // TIMER DE SESSÃO DO PC
+    // =========================================================================
+    function beep(freq = 660, dur = 0.25) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.frequency.value = freq;
+        g.gain.value = 0.15;
+        o.connect(g);
+        g.connect(ctx.destination);
+        o.start();
+        o.stop(ctx.currentTime + dur);
+      } catch (e) {}
+    }
+
+    function setTimer(mins) {
+      stopTimer();
+      timerSecs = mins * 60;
+      timerInitSecs = timerSecs;
+      renderTimer();
+    }
+
+    function renderTimer() {
+      const h = Math.floor(timerSecs / 3600);
+      const m = Math.floor((timerSecs % 3600) / 60);
+      const s = timerSecs % 60;
+      const el = document.getElementById('timer-clock');
+      const msg = document.getElementById('timer-msg');
+
+      el.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      el.className = 'timer-clock';
+
+      if (timerSecs <= 300 && timerSecs > 0) {
+        el.classList.add('warn-5');
+        msg.textContent = '🚨 Faltam menos de 5 min! Hora de salvar o jogo.';
+      } else if (timerSecs <= 900 && timerSecs > 0) {
+        el.classList.add('warn-15');
+        msg.textContent = '⚠️ Faltam 15 min: comece a encerrar a partida.';
+      } else {
+        msg.textContent = 'Timer de Uso (avisa quando faltam 15 min e 5 min)';
+      }
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById('btn-timer-start');
+      if (timerRef) {
+        stopTimer();
+      } else {
+        btn.textContent = '⏸️ Pausar';
+        timerRef = setInterval(() => {
+          if (timerSecs > 0) {
+            timerSecs--;
+            if (timerSecs === 900) beep(520, 0.4);
+            if (timerSecs === 300) beep(740, 0.5);
+            if (timerSecs === 0) { beep(880, 0.8); stopTimer(); }
+            if ((timerInitSecs - timerSecs) % 60 === 0) {
+              state.currentWeek.usedPcMinutes = (state.currentWeek.usedPcMinutes || 0) + 1;
+              saveState();
+            }
+            renderTimer();
+          }
+        }, 1000);
+      }
+    }
+
+    function stopTimer() {
+      if (timerRef) { clearInterval(timerRef); timerRef = null; }
+      document.getElementById('btn-timer-start').textContent = '▶️ Iniciar';
+    }
+
+    function addPunctualBonus() {
+      stopTimer();
+      state.currentWeek.bonusPcMinutes = (state.currentWeek.bonusPcMinutes || 0) + 15;
+      state.currentWeek.habits.pcRespect = true;
+      saveState();
+      alert('🎉 +15 minutos de bônus adicionados por sair no horário sem reclamar!');
+    }
+
+    function addOvertimePenalty() {
+      stopTimer();
+      const v = prompt('Quantos minutos passou do horário? (Desconta em dobro):', '10');
+      const mins = parseInt(v, 10);
+      if (!isNaN(mins) && mins > 0) {
+        state.currentWeek.bonusPcMinutes = (state.currentWeek.bonusPcMinutes || 0) - (mins * 2);
+        saveState();
+      }
+    }
+
+    // =========================================================================
+    // CONFIGURAÇÕES E BACKUP
+    // =========================================================================
+    function saveConfig() {
+      state.settings.playerName = document.getElementById('cfg-name').value.trim();
+      state.settings.weeklyGoal = Number(document.getElementById('cfg-goal').value) || 3;
+      state.settings.maxPcHours = Number(document.getElementById('cfg-pc-max').value) || 6;
+      state.settings.baseAllowance = Number(document.getElementById('cfg-m-base').value) || 0;
+      state.settings.essaysAllowance = Number(document.getElementById('cfg-m-essays').value) || 0;
+      state.settings.excAllowance = Number(document.getElementById('cfg-m-exc').value) || 0;
+      state.settings.geminiApiKey = document.getElementById('cfg-api-key').value.trim();
+      saveState();
+      alert('✅ Ajustes salvos!');
+    }
+
+    async function testApiKey() {
+      const key = document.getElementById('cfg-api-key').value.trim();
+      if (!key) {
+        alert('Cole primeiro a chave no campo acima.');
+        return;
+      }
+      state.settings.geminiApiKey = key;
+      saveState();
+      const btn = document.getElementById('btn-test-key');
+      btn.disabled = true;
+      btn.textContent = '⏳ Testando...';
+      try {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${encodeURIComponent(key)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: 'Responda apenas: OK' }] }]
+          })
+        });
+        const data = await resp.json();
+        if (resp.ok && data.candidates) {
+          alert('✅ Chave conectada e funcionando perfeitamente!');
+        } else {
+          alert('⚠️ O Google retornou um aviso: ' + (data.error?.message || 'Verifique a chave.'));
+        }
+      } catch (e) {
+        alert('⚠️ Erro de conexão ao testar a chave.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🧪 Testar Chave';
+      }
+    }
+
+    function finishWeek() {
+      const m = getMetrics();
+      if (!confirm(`Fechar semana atual?\nPC: ${fmtMins(m.unlockedMins)} | Mesada: R$ ${fmtMoney(m.money)}`)) return;
+      state.pastWeeks.unshift({
+        closedAt: new Date().toLocaleDateString('pt-BR'),
+        approvedCount: m.approved,
+        unlockedMinutes: m.unlockedMins,
+        allowanceEarned: m.money
+      });
+      state.currentWeek = {
+        habits: { kumon: false, school: false, pcRespect: false },
+        bonusPcMinutes: 0,
+        usedPcMinutes: 0,
+        essays: []
+      };
+      saveState();
+      openTab('dashboard');
+    }
+
+    function exportJSON() {
+      const b = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(b);
+      a.download = 'backup_leitura_em_acao.json';
+      a.click();
+    }
+
+    function importJSON(e) {
+      const f = e.target.files?.[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = ev => {
+        try {
+          state = { ...defaultState, ...JSON.parse(ev.target.result) };
+          saveState();
+          alert('✅ Backup importado!');
+        } catch (err) { alert('Arquivo inválido.'); }
+      };
+      r.readAsText(f);
+    }
+
+    function esc(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Sincronização via Link Mágico (?placar=...) para o Tio abrir no celular/PC
+    function checkUrlSync() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const placarParam = params.get('placar');
+        if (!placarParam) return;
+
+        const decoded = JSON.parse(decodeURIComponent(atob(placarParam)));
+        if (decoded && decoded.w) {
+          const currentKey = state.settings.geminiApiKey || DEFAULT_API_KEY;
+          state.currentWeek = {
+            ...defaultState.currentWeek,
+            ...decoded.w,
+            habits: { ...defaultState.currentWeek.habits, ...(decoded.w.habits || {}) }
+          };
+          if (decoded.s) {
+            state.settings = { ...defaultState.settings, ...decoded.s, geminiApiKey: currentKey };
+          }
+          if (Array.isArray(decoded.p)) {
+            state.pastWeeks = decoded.p;
+          }
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          window.history.replaceState({}, document.title, window.location.pathname);
+          setTimeout(() => {
+            alert('✅ Placar atualizado com sucesso! As redações, horas de PC e mesada já estão sincronizadas neste aparelho.');
+          }, 200);
+        }
+      } catch (e) {
+        console.warn('Erro ao ler placar do link:', e);
+      }
+    }
+
+    function shareWithUncle() {
+      const m = getMetrics();
+      const goal = state.settings.weeklyGoal || 3;
+      const essays = state.currentWeek.essays || [];
+
+      const safeSettings = { ...state.settings };
+      delete safeSettings.geminiApiKey;
+
+      const syncPayload = {
+        s: safeSettings,
+        w: state.currentWeek,
+        p: (state.pastWeeks || []).slice(0, 8)
+      };
+
+      const encoded = btoa(encodeURIComponent(JSON.stringify(syncPayload)));
+      const isOnline = window.location.protocol.startsWith('http');
+      const baseUrl = isOnline
+        ? (window.location.origin + window.location.pathname)
+        : 'https://yancsalmeida.github.io/leitura-em-acao/';
+      const syncUrl = `${baseUrl}?placar=${encoded}`;
+
+      let essayLines = '';
+      if (essays.length > 0) {
+        essayLines = '\n📚 *Redações da semana:*\n' + essays.map(e => `• ${e.title}: *${e.score}/100 pts* (+${e.unlockedMinutes}m PC)`).join('\n') + '\n';
+      }
+
+      const msg =
+        `🚀 *Placar Leitura em Ação*${state.settings.playerName ? ' (' + state.settings.playerName + ')' : ''}\n` +
+        `🖥️ *Horas de PC liberadas:* ${fmtMins(m.unlockedMins)} (Restante: ${fmtMins(m.remainMins)})\n` +
+        `💰 *Mesada acumulada:* R$ ${fmtMoney(m.money)} / R$ ${fmtMoney(m.maxMoney)}\n` +
+        `📝 *Meta 60+ pts:* ${m.approved}/${goal} redações\n` +
+        essayLines +
+        `\n🔗 *Clique no link abaixo para abrir o painel sincronizado:*\n${syncUrl}`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(msg).catch(() => {});
+      }
+
+      const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+      window.open(waUrl, '_blank');
+    }
+
+    checkUrlSync();
+    buildMissionLocal();
+    render();
+  </script>
+</body>
+</html>
