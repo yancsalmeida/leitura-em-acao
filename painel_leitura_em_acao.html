@@ -2648,11 +2648,7 @@ PC: ${fmtMins(m.unlockedMins)} | Mesada: R$ ${fmtMoney(m.money)}`)) return;
 
       let essayLines = '';
       if (essays.length > 0) {
-        essayLines = '
-📚 *Redações avaliadas:*
-' + essays.map(e => `• ${e.readingTitle}: *${e.score}/100 pts* (+${e.unlockedMinutes}m PC)`).join('
-') + '
-';
+        essayLines = '\n📚 *Redações avaliadas:*\n' + essays.map(e => `• ${e.readingTitle}: *${e.score}/100 pts* (+${e.unlockedMinutes}m PC)`).join('\n') + '\n';
       }
 
       let pendingNotice = '';
