@@ -2080,7 +2080,8 @@ Tipo: ${phase}` }] }],
         });
         const data = await resp.json();
         const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        const parsed = JSON.parse(rawText);
+        const cleanJson = (rawText || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+        const parsed = JSON.parse(cleanJson);
         if (parsed.prompt) document.getElementById('out-prompt').value = parsed.prompt;
         if (parsed.keywords && parsed.keywords.length >= 3) {
           document.getElementById('out-kw1').value = parsed.keywords[0];
@@ -2303,7 +2304,8 @@ Retorne APENAS um JSON no formato:
 
         const data = await resp.json();
         const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        const parsed = JSON.parse(rawText);
+        const cleanJson = (rawText || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+        const parsed = JSON.parse(cleanJson);
 
         if (parsed.scores) {
           setCrit(1, parsed.scores.c1 ?? 15);
