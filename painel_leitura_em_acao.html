@@ -682,6 +682,15 @@
           </div>
         </div>
 
+        <!-- BOLETIM DE REDAÇÕES CORRIGIDAS DESTA SEMANA (VISÍVEL PARA O JOGADOR) -->
+        <div class="card" id="kid-essays-card">
+          <div class="card-title">
+            <span>📊 Boletim das Minhas Redações Corrigidas (Esta Semana)</span>
+            <span class="sub-text">Veja onde você mandou bem e o que melhorar para ganhar mais horas!</span>
+          </div>
+          <div id="kid-essays-list"></div>
+        </div>
+
         <!-- ATALHO DE ACESSO DO RESPONSÁVEL NO RODAPÉ -->
         <div style="text-align: center; margin-top: 24px; padding: 16px; background: rgba(30, 41, 59, 0.4); border-radius: var(--radius); border: 1px dashed var(--border);">
           <span class="sub-text" style="color: #94a3b8; font-size: 0.88rem;">É o Yan ou o Tio? </span>
@@ -734,6 +743,37 @@
               <iframe id="kid-prev-pdf" style="display: none;" title="PDF Redação"></iframe>
             </div>
 
+            <!-- CHECKLIST DE AUTOCONFERÊNCIA ANTES DE ENVIAR -->
+            <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-top: 12px;">
+              <div style="font-weight: 700; color: #fde68a; font-size: 0.9rem; margin-bottom: 8px;">
+                ✅ Checklist do Campeão (confira no seu papel antes de enviar):
+              </div>
+              <label class="check-row" style="padding: 7px 10px; margin-bottom: 6px; font-size: 0.85rem;">
+                <div class="check-left">
+                  <input type="checkbox" id="chk-kid-1" />
+                  <span>Escrevi de <strong>15 a 25 linhas</strong> divididas em <strong>4 parágrafos</strong> (Começo, Problema, Ação e Fim)</span>
+                </div>
+              </label>
+              <label class="check-row" style="padding: 7px 10px; margin-bottom: 6px; font-size: 0.85rem;">
+                <div class="check-left">
+                  <input type="checkbox" id="chk-kid-2" />
+                  <span>Usei e <strong>sublinhei no papel</strong> as 3 palavras obrigatórias da missão</span>
+                </div>
+              </label>
+              <label class="check-row" style="padding: 7px 10px; margin-bottom: 6px; font-size: 0.85rem;">
+                <div class="check-left">
+                  <input type="checkbox" id="chk-kid-3" />
+                  <span>Troquei nomes repetidos por pronomes (<em>ele, o jovem, seu</em>) — <strong>Kumon F1</strong></span>
+                </div>
+              </label>
+              <label class="check-row" style="padding: 7px 10px; margin-bottom: 0; font-size: 0.85rem;">
+                <div class="check-left">
+                  <input type="checkbox" id="chk-kid-4" />
+                  <span>Conferi que <strong>NÃO tem vírgula</strong> separando Sujeito e Verbo</span>
+                </div>
+              </label>
+            </div>
+
             <button class="btn btn-green" id="btn-kid-submit" style="width: 100%; padding: 13px; font-size: 1.05rem; margin-top: 10px;" onclick="submitKidEssay()">
               🚀 Enviar Redação para o Yan e o Tio
             </button>
@@ -773,9 +813,10 @@
             <p class="sub-text" style="color: #cbd5e1; margin: 6px 0 12px;">
               Se você salvar o jogo e desligar o computador no horário combinado sem briga, você ganha <strong>+15 minutos extras</strong> para o próximo dia!
             </p>
-            <button class="btn btn-amber" onclick="addPunctualBonus()">
-              ✅ Desliguei no horário certinho! (+15 min)
+            <button class="btn btn-amber" id="btn-kid-punctual" onclick="requestPunctualBonusFromKid()">
+              ✅ Desliguei no horário certinho! (Pedir +15 min)
             </button>
+            <div id="kid-punctual-status" class="sub-text" style="margin-top: 8px; color: #fde68a; display: none;"></div>
           </div>
         </div>
       </section>
@@ -810,6 +851,26 @@
           <div id="adult-pending-list"></div>
         </div>
 
+        <!-- PEDIDO DE BÔNUS DE PONTUALIDADE ENVIADO PELA CRIANÇA -->
+        <div id="adult-punctual-box" style="display: none; background: rgba(245, 158, 11, 0.14); border: 1.5px solid var(--amber); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <strong style="color: #fde68a; font-size: 0.98rem;">⏱️ Pedido de Bônus de Pontualidade (+15 min):</strong>
+              <div class="sub-text" style="color: #e2e8f0; margin-top: 2px;">
+                O jogador informou que salvou o jogo e desligou o PC no horário combinado sem briga. Confirmar crédito?
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-green" style="font-size: 0.84rem; padding: 6px 12px;" onclick="approvePunctualBonus()">
+                ✅ Confirmar +15 min
+              </button>
+              <button class="btn btn-ghost" style="font-size: 0.84rem; padding: 6px 12px; color: #f87171;" onclick="rejectPunctualBonus()">
+                ✖ Recusar
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div class="grid-2">
 
           <!-- HORAS DE PC -->
@@ -828,8 +889,12 @@
 
             <!-- Timer Compacto -->
             <div class="timer-box">
-              <div class="sub-text" id="timer-msg">Timer de Uso (avisa quando faltam 15 min e 5 min)</div>
+              <div class="sub-text" id="timer-msg">Timer de Uso (desconta minutos jogados automaticamente)</div>
               <div class="timer-clock" id="timer-clock">01:00:00</div>
+              <div class="sub-text" style="margin-bottom: 8px; color: #cbd5e1;">
+                Tempo já jogado na semana: <strong id="dash-pc-used" style="color: #fde68a;">0h 00m</strong>
+                <button class="btn btn-ghost" style="padding: 2px 8px; font-size: 0.72rem; margin-left: 6px;" onclick="resetUsedPcMinutes()">🔄 Zerar Usado</button>
+              </div>
               <div class="btn-row" style="justify-content: center; margin-bottom: 8px;">
                 <button class="btn btn-ghost" onclick="setTimer(30)">30m</button>
                 <button class="btn btn-ghost" onclick="setTimer(60)">1h</button>
@@ -1056,6 +1121,18 @@
 
           <!-- RUBRICA DE 5 CRITÉRIOS (0 a 20 pts) -->
           <div class="card">
+            <!-- BANNER MODO 2ª CHANCE / REAVALIAÇÃO -->
+            <div id="regrade-banner" style="display: none; background: rgba(245, 158, 11, 0.16); border: 1.5px solid var(--amber); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                <span id="regrade-banner-text" style="color: #fde68a; font-weight: 700; font-size: 0.88rem;">
+                  🔄 Modo 2ª Chance: Atualizando redação
+                </span>
+                <button class="btn btn-ghost" style="padding: 3px 8px; font-size: 0.76rem;" onclick="cancelRegradeEssay()">
+                  ✖ Cancelar Edição
+                </button>
+              </div>
+            </div>
+
             <div class="card-title">
               <span>2. Rigor de Concurso (0 a 20 pts por critério)</span>
               <span class="pill amber" id="live-total-pill">80 / 100 pts</span>
@@ -1116,6 +1193,12 @@
               </div>
             </div>
 
+            <!-- Transcrição OCR gerada pela IA -->
+            <div id="ai-transcription-box" style="display: none; background: rgba(59, 130, 246, 0.1); border: 1px solid var(--blue); border-radius: 8px; padding: 10px 12px; margin: 10px 0; font-size: 0.83rem;">
+              <strong style="color: #93c5fd;">📝 Texto Manuscrito Lido pela IA (OCR):</strong>
+              <div id="ai-transcription-text" style="margin-top: 5px; color: #e2e8f0; white-space: pre-wrap; max-height: 130px; overflow-y: auto; line-height: 1.4;"></div>
+            </div>
+
             <!-- Lista de Erros Específicos apontados pela IA -->
             <div id="ai-errors-box" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--red); border-radius: 8px; padding: 10px 12px; margin: 10px 0; font-size: 0.84rem;">
               <strong style="color: #fca5a5;">🔍 Trechos para Corrigir no Papel:</strong>
@@ -1133,7 +1216,7 @@
               <div style="font-size: 1.3rem; font-weight: 800; color: #34d399;" id="reward-mins-text">+90 min PC</div>
             </div>
 
-            <button class="btn btn-green" style="width: 100%; padding: 13px; font-size: 1rem;" onclick="saveEssay()">
+            <button class="btn btn-green" id="btn-save-essay" style="width: 100%; padding: 13px; font-size: 1rem;" onclick="saveEssay()">
               ✅ Salvar Redação e Creditar Horas
             </button>
           </div>
@@ -1345,6 +1428,7 @@
         habits: { kumon: false, school: false, pcRespect: false },
         bonusPcMinutes: 0,
         usedPcMinutes: 0,
+        pendingPunctualBonus: false,
         essays: [],
         submissions: []
       },
@@ -1368,6 +1452,9 @@
     let uploadedFileMime = '';
     let uploadedFileName = '';
     let currentGradingSubId = null;
+    let currentAiErrors = [];
+    let currentAiTranscription = '';
+    let editingEssayIndex = null;
 
     // Uploaded file state (Kid Submission)
     let uploadedKidFileDataUrl = '';
@@ -1378,6 +1465,7 @@
     let timerSecs = 3600;
     let timerInitSecs = 3600;
     let timerRef = null;
+    let timerElapsedSecs = 0;
 
     function loadState() {
       try {
@@ -1410,10 +1498,30 @@
       }
     }
 
+    function safeSaveToLocalStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        // QuotaExceededError fallback: strip heavy Base64 data from already graded submissions
+        if (state.currentWeek && Array.isArray(state.currentWeek.submissions)) {
+          state.currentWeek.submissions.forEach(s => {
+            if (s.status === 'graded' && s.fileData) {
+              s.fileData = '';
+            }
+          });
+        }
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (err) {
+          console.warn('Limite de armazenamento local atingido:', err);
+        }
+      }
+    }
+
     function saveState() {
       state.updatedAt = Date.now();
       updateTrophies();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      safeSaveToLocalStorage();
       render();
       pushToCloud();
     }
@@ -1478,7 +1586,7 @@
 
     function setMode(mode) {
       state.currentMode = mode;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      safeSaveToLocalStorage();
       if (mode === 'adult') {
         openTab('dashboard');
       } else {
@@ -1633,6 +1741,46 @@
       if (countBadge) countBadge.textContent = `${unlockedCount} / ${list.length} Desbloqueados`;
     }
 
+    function renderRubricBreakdownHtml(item) {
+      const r = item.rubricScores;
+      const errs = Array.isArray(item.specificErrors) ? item.specificErrors : [];
+      const trans = item.transcription || '';
+      let html = '';
+
+      if (r) {
+        const labels = [
+          { k: 1, name: 'Tema/Palavras' },
+          { k: 2, name: '4 Parágrafos' },
+          { k: 3, name: '15-25 Linhas' },
+          { k: 4, name: 'Kumon F1' },
+          { k: 5, name: 'Gramática/Vírgula' }
+        ];
+        html += `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;">` +
+          labels.map(l => {
+            const val = r[l.k] ?? r[String(l.k)] ?? 0;
+            const col = val >= 15 ? '#34d399' : (val >= 10 ? '#fbbf24' : '#f87171');
+            return `<span style="background:rgba(15,23,42,0.85);border:1px solid ${col};color:${col};border-radius:6px;padding:2px 7px;font-size:0.74rem;font-weight:700;">${l.name}: ${val}/20</span>`;
+          }).join('') +
+          `</div>`;
+      }
+
+      if (errs.length > 0) {
+        html += `<div style="background:rgba(239,68,68,0.1);border-left:3px solid #ef4444;padding:6px 10px;margin-top:6px;border-radius:4px;font-size:0.8rem;color:#fca5a5;">
+          <strong>🔍 O que corrigir no papel (2ª Chance):</strong>
+          <ul style="margin:4px 0 0;padding-left:16px;color:#f8fafc;">${errs.map(er => `<li>${esc(er)}</li>`).join('')}</ul>
+        </div>`;
+      }
+
+      if (trans) {
+        html += `<details style="margin-top:6px;font-size:0.79rem;color:#93c5fd;">
+          <summary style="cursor:pointer;font-weight:600;">📝 Ver texto lido pela IA (Transcrição)</summary>
+          <div style="background:rgba(15,23,42,0.8);padding:8px;border-radius:6px;margin-top:4px;color:#e2e8f0;white-space:pre-wrap;">${esc(trans)}</div>
+        </details>`;
+      }
+
+      return html;
+    }
+
     function render() {
       const m = getMetrics();
       const isAdult = state.currentMode === 'adult';
@@ -1685,6 +1833,50 @@
         const kws = am.keywords || ['desafio', 'esforço', 'vitória'];
         document.getElementById('kid-quest-kws').innerHTML = kws.map(k => `<span class="pill amber" style="font-size:0.95rem;">${esc(k)}</span>`).join('');
 
+        // Kid Punctual Bonus Status
+        const pBtn = document.getElementById('btn-kid-punctual');
+        const pStatus = document.getElementById('kid-punctual-status');
+        if (pBtn && pStatus) {
+          if (state.currentWeek.pendingPunctualBonus) {
+            pBtn.disabled = true;
+            pBtn.textContent = '⏳ Pedido de +15 min enviado ao Yan e ao Tio';
+            pStatus.style.display = 'block';
+            pStatus.textContent = 'Assim que o Yan ou seu Tio confirmar no painel do responsável, os +15 min entram no seu saldo!';
+          } else {
+            pBtn.disabled = false;
+            pBtn.textContent = '✅ Desliguei no horário certinho! (Pedir +15 min)';
+            pStatus.style.display = 'none';
+          }
+        }
+
+        // Kid Boletim of Graded Essays (on Home Tab)
+        const kidEssaysList = document.getElementById('kid-essays-list');
+        const weekEssays = state.currentWeek.essays || [];
+        if (kidEssaysList) {
+          if (weekEssays.length === 0) {
+            kidEssaysList.innerHTML = `<div class="sub-text" style="padding:8px 0;">Nenhuma redação corrigida nesta semana ainda. Cumpre a missão acima e envie a foto da sua folha!</div>`;
+          } else {
+            kidEssaysList.innerHTML = weekEssays.map((e, i) => `
+              <div class="list-item" style="border-left: 4px solid ${e.score >= 80 ? '#fbbf24' : (e.score >= 60 ? '#10b981' : '#f87171')}; align-items: flex-start;">
+                <div style="flex: 1;">
+                  <div>
+                    <strong>#${i + 1} ${esc(e.readingTitle)}</strong>
+                    <span class="pill ${e.score >= 60 ? 'green' : 'amber'}" style="padding:2px 8px;font-size:0.8rem;margin-left:6px;">
+                      Nota: ${e.score}/100
+                    </span>
+                    <span class="pill amber" style="padding:2px 8px;font-size:0.8rem;margin-left:4px;">
+                      +${e.unlockedMinutes}m PC
+                    </span>
+                    ${e.previousScore !== undefined ? `<span class="pill blue" style="padding:2px 8px;font-size:0.75rem;margin-left:4px;">🔄 2ª Chance (antes: ${e.previousScore} pts)</span>` : ''}
+                  </div>
+                  ${e.feedback ? `<div class="sub-text" style="color:#6ee7b7;margin-top:5px;">💬 <strong>Dica do Tutor:</strong> ${esc(e.feedback)}</div>` : ''}
+                  ${renderRubricBreakdownHtml(e)}
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+
         // Submissions List in Kid Portal
         const kidSubList = document.getElementById('kid-submissions-list');
         const subs = state.currentWeek.submissions || [];
@@ -1694,8 +1886,8 @@
           kidSubList.innerHTML = subs.map(s => {
             const isGraded = s.status === 'graded';
             return `
-              <div class="list-item" style="border-left: 4px solid ${isGraded ? '#10b981' : '#f59e0b'};">
-                <div>
+              <div class="list-item" style="border-left: 4px solid ${isGraded ? '#10b981' : '#f59e0b'}; align-items: flex-start;">
+                <div style="flex: 1;">
                   <strong>${esc(s.title)}</strong>
                   <div class="sub-text">Entregue: ${s.date} às ${s.time || ''}</div>
                   ${s.note ? `<div class="sub-text" style="color:#93c5fd;">💬 Seu recado: "${esc(s.note)}"</div>` : ''}
@@ -1705,6 +1897,7 @@
                       <span class="pill amber" style="padding:2px 8px;font-size:0.8rem;">+${s.unlockedMinutes}m PC</span>
                     </div>
                     ${s.feedback ? `<div class="sub-text" style="color:#6ee7b7;margin-top:4px;">📝 Comentário: ${esc(s.feedback)}</div>` : ''}
+                    ${renderRubricBreakdownHtml(s)}
                   ` : `
                     <div style="margin-top:4px;">
                       <span class="pill amber" style="padding:2px 8px;font-size:0.78rem;">🟡 Aguardando Correção do Yan / Tio</span>
@@ -1748,10 +1941,18 @@
           pendingBox.style.display = 'none';
         }
 
+        // Pending Punctual Bonus Box
+        const punctualBox = document.getElementById('adult-punctual-box');
+        if (punctualBox) {
+          punctualBox.style.display = state.currentWeek.pendingPunctualBonus ? 'block' : 'none';
+        }
+
         // PC Card
         document.getElementById('dash-pc-total').textContent = fmtMins(m.unlockedMins);
         document.getElementById('dash-pc-cap').textContent = fmtMins(m.capMins);
         document.getElementById('dash-pc-rest').textContent = `Disponível: ${fmtMins(m.remainMins)}`;
+        const usedEl = document.getElementById('dash-pc-used');
+        if (usedEl) usedEl.textContent = fmtMins(state.currentWeek.usedPcMinutes || 0);
         document.getElementById('bar-pc').style.width = `${m.capMins ? Math.min(100, (m.unlockedMins / m.capMins) * 100) : 0}%`;
 
         // Money Card
@@ -1786,18 +1987,23 @@
           listEl.innerHTML = `<div class="sub-text" style="padding: 10px 0;">Nenhuma redação avaliada nesta semana ainda.</div>`;
         } else {
           listEl.innerHTML = essays.map((e, i) => `
-            <div class="list-item">
-              <div>
-                <strong>#${i + 1} ${esc(e.readingTitle)}</strong>
-                <span style="margin-left:8px;color:${e.score >= 80 ? '#fbbf24' : (e.score >= 60 ? '#34d399' : '#f87171')};font-weight:700;">
-                  ${e.score} pts
-                </span>
-                ${e.fileName ? `<span class="sub-text" style="margin-left:8px;">📎 ${esc(e.fileName)}</span>` : ''}
-                ${e.feedback ? `<div class="sub-text">💬 ${esc(e.feedback)}</div>` : ''}
+            <div class="list-item" style="align-items: flex-start;">
+              <div style="flex: 1;">
+                <div>
+                  <strong>#${i + 1} ${esc(e.readingTitle)}</strong>
+                  <span style="margin-left:8px;color:${e.score >= 80 ? '#fbbf24' : (e.score >= 60 ? '#34d399' : '#f87171')};font-weight:700;">
+                    ${e.score} pts
+                  </span>
+                  ${e.previousScore !== undefined ? `<span class="pill blue" style="padding:2px 7px;font-size:0.74rem;margin-left:6px;">🔄 2ª Chance (era ${e.previousScore} pts)</span>` : ''}
+                  ${e.fileName ? `<span class="sub-text" style="margin-left:8px;">📎 ${esc(e.fileName)}</span>` : ''}
+                </div>
+                ${e.feedback ? `<div class="sub-text" style="margin-top:4px;">💬 ${esc(e.feedback)}</div>` : ''}
+                ${renderRubricBreakdownHtml(e)}
               </div>
-              <div class="btn-row">
+              <div class="btn-row" style="margin-top: 0;">
                 <span class="pill green" style="padding:4px 10px;font-size:0.8rem;">+${e.unlockedMinutes}m PC</span>
-                <button class="btn btn-ghost" style="padding:4px 8px;" onclick="removeEssay(${i})">🗑️</button>
+                <button class="btn btn-amber" style="padding:4px 9px;font-size:0.78rem;" onclick="startRegradeEssay(${i})" title="Reavaliar após reescrita (2ª Chance)">🔄 2ª Chance</button>
+                <button class="btn btn-ghost" style="padding:4px 8px;" onclick="removeEssay(${i})" title="Remover redação">🗑️</button>
               </div>
             </div>
           `).join('');
@@ -1847,6 +2053,10 @@
     function compressImageFile(file, maxDimension = 1200, quality = 0.75) {
       return new Promise((resolve, reject) => {
         if (file.type === 'application/pdf') {
+          if (file.size > 3 * 1024 * 1024) {
+            reject(new Error('PDF_TOO_LARGE'));
+            return;
+          }
           const reader = new FileReader();
           reader.onload = e => resolve({ dataUrl: e.target.result, mime: 'application/pdf' });
           reader.onerror = reject;
@@ -1918,8 +2128,12 @@
           badge.textContent = 'Foto da Redação Manuscrita';
         }
       } catch (err) {
-        alert('Erro ao carregar arquivo. Tente novamente.');
-        label.textContent = 'Erro ao carregar';
+        if (err && err.message === 'PDF_TOO_LARGE') {
+          alert('⚠️ Este arquivo PDF é muito grande (> 3 MB) para sincronizar na nuvem. Por favor, tire uma foto da folha com a câmera (ela é otimizada automaticamente) ou envie um PDF menor!');
+        } else {
+          alert('Erro ao carregar arquivo. Tente novamente.');
+        }
+        label.textContent = 'Clique ou arraste a imagem (.jpg, .png) ou PDF';
       }
     }
 
@@ -1938,6 +2152,15 @@
 
       if (!uploadedKidFileDataUrl) {
         alert('⚠️ Por favor, tire ou selecione uma foto da folha de redação antes de enviar.');
+        return;
+      }
+
+      const c1 = document.getElementById('chk-kid-1')?.checked;
+      const c2 = document.getElementById('chk-kid-2')?.checked;
+      const c3 = document.getElementById('chk-kid-3')?.checked;
+      const c4 = document.getElementById('chk-kid-4')?.checked;
+      if (!c1 || !c2 || !c3 || !c4) {
+        alert('📋 Antes de enviar, confira sua folha e marque os 4 itens do Checklist do Campeão (15-25 linhas em 4 parágrafos, 3 palavras sublinhadas, pronomes do Kumon F1 e sem vírgula entre sujeito e verbo)!');
         return;
       }
 
@@ -1968,6 +2191,10 @@
       btn.textContent = '🚀 Enviar Redação para o Yan e o Tio';
       clearKidUpload();
       document.getElementById('kid-sub-note').value = '';
+      ['chk-kid-1', 'chk-kid-2', 'chk-kid-3', 'chk-kid-4'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = false;
+      });
       alert('🎉 Parabéns! Sua redação foi enviada para o Yan e o seu tio. Assim que eles corrigirem, sua nota e tempo de PC vão aparecer aqui!');
       openKidTab('submit');
     }
@@ -1979,6 +2206,7 @@
       const sub = (state.currentWeek.submissions || []).find(s => s.id === subId);
       if (!sub) return;
 
+      cancelRegradeEssay();
       currentGradingSubId = subId;
       uploadedFileDataUrl = sub.fileData;
       uploadedFileMime = sub.fileMime;
@@ -2151,7 +2379,7 @@ Tipo: ${phase}` }] }],
     }
 
     // =========================================================================
-    // CORRETOR DE REDAÇÃO (ADULT)
+    // CORRETOR DE REDAÇÃO (ADULT) & MODO 2ª CHANCE
     // =========================================================================
     function setCrit(c, val) {
       rubric[c] = val;
@@ -2230,7 +2458,12 @@ Tipo: ${phase}` }] }],
           prevBadge.textContent = 'Foto da Redação';
         }
       } catch (e) {
-        alert('Erro ao carregar o arquivo.');
+        if (e && e.message === 'PDF_TOO_LARGE') {
+          alert('⚠️ Este arquivo PDF tem mais de 3 MB. Prefira tirar uma foto ou usar um PDF mais leve.');
+        } else {
+          alert('Erro ao carregar o arquivo.');
+        }
+        label.textContent = 'Nenhum arquivo selecionado';
       }
     }
 
@@ -2239,10 +2472,79 @@ Tipo: ${phase}` }] }],
       uploadedFileMime = '';
       uploadedFileName = '';
       currentGradingSubId = null;
+      currentAiErrors = [];
+      currentAiTranscription = '';
       document.getElementById('file-upload').value = '';
       document.getElementById('file-name-label').textContent = 'Nenhum arquivo selecionado';
       document.getElementById('preview-container').style.display = 'none';
       document.getElementById('grader-source-badge').style.display = 'none';
+      const errBox = document.getElementById('ai-errors-box');
+      if (errBox) errBox.style.display = 'none';
+      const trBox = document.getElementById('ai-transcription-box');
+      if (trBox) trBox.style.display = 'none';
+    }
+
+    function startRegradeEssay(index) {
+      const e = (state.currentWeek.essays || [])[index];
+      if (!e) return;
+
+      editingEssayIndex = index;
+      document.getElementById('grd-title').value = e.readingTitle || '';
+      document.getElementById('grd-level').value = e.level || 'prata';
+      document.getElementById('grd-feedback').value = e.feedback || '';
+
+      const r = e.rubricScores || { 1: 15, 2: 15, 3: 20, 4: 15, 5: 15 };
+      setCrit(1, r[1] ?? r['1'] ?? 15);
+      setCrit(2, r[2] ?? r['2'] ?? 15);
+      setCrit(3, r[3] ?? r['3'] ?? 20);
+      setCrit(4, r[4] ?? r['4'] ?? 15);
+      setCrit(5, r[5] ?? r['5'] ?? 15);
+
+      currentAiErrors = Array.isArray(e.specificErrors) ? [...e.specificErrors] : [];
+      currentAiTranscription = e.transcription || '';
+
+      const errBox = document.getElementById('ai-errors-box');
+      const errList = document.getElementById('ai-errors-list');
+      if (errBox && errList) {
+        if (currentAiErrors.length > 0) {
+          errList.innerHTML = currentAiErrors.map(er => `<li>${esc(er)}</li>`).join('');
+          errBox.style.display = 'block';
+        } else {
+          errBox.style.display = 'none';
+        }
+      }
+
+      const trBox = document.getElementById('ai-transcription-box');
+      const trText = document.getElementById('ai-transcription-text');
+      if (trBox && trText) {
+        if (currentAiTranscription) {
+          trText.textContent = currentAiTranscription;
+          trBox.style.display = 'block';
+        } else {
+          trBox.style.display = 'none';
+        }
+      }
+
+      const banner = document.getElementById('regrade-banner');
+      const bannerTxt = document.getElementById('regrade-banner-text');
+      const saveBtn = document.getElementById('btn-save-essay');
+      if (banner && bannerTxt) {
+        banner.style.display = 'block';
+        bannerTxt.textContent = `🔄 Modo 2ª Chance: Atualizando #${index + 1} "${e.readingTitle}" (Nota anterior: ${e.score} pts)`;
+      }
+      if (saveBtn) {
+        saveBtn.textContent = '🔄 Salvar Nova Nota (2ª Chance) e Atualizar Horas';
+      }
+
+      openTab('grader');
+    }
+
+    function cancelRegradeEssay() {
+      editingEssayIndex = null;
+      const banner = document.getElementById('regrade-banner');
+      const saveBtn = document.getElementById('btn-save-essay');
+      if (banner) banner.style.display = 'none';
+      if (saveBtn) saveBtn.textContent = '✅ Salvar Redação e Creditar Horas';
     }
 
     async function gradeWithAI() {
@@ -2279,6 +2581,7 @@ Critérios (0, 5, 10, 15 ou 20 pontos cada):
 
 Retorne APENAS um JSON no formato:
 {
+  "transcription": "Transcrição fiel do texto manuscrito pelo aluno preservando os parágrafos",
   "scores": { "c1": 20, "c2": 15, "c3": 20, "c4": 10, "c5": 15 },
   "specific_errors": ["Citar trecho exato onde houve erro", "Ex: Separou sujeito e verbo por vírgula em 'O Pedro, era...'", "Ex: Repetiu 'Pedro' 8 vezes sem usar pronomes do Kumon F1"],
   "feedback_summary": "1 frase curta e motivadora dizendo exatamente o que ajustar na 2ª chance"
@@ -2315,11 +2618,28 @@ Retorne APENAS um JSON no formato:
           setCrit(5, parsed.scores.c5 ?? 15);
         }
 
-        if (parsed.specific_errors && parsed.specific_errors.length > 0) {
-          const errBox = document.getElementById('ai-errors-box');
-          const errList = document.getElementById('ai-errors-list');
-          errList.innerHTML = parsed.specific_errors.map(e => `<li>${esc(e)}</li>`).join('');
-          errBox.style.display = 'block';
+        currentAiTranscription = (parsed.transcription || '').trim();
+        const trBox = document.getElementById('ai-transcription-box');
+        const trText = document.getElementById('ai-transcription-text');
+        if (trBox && trText) {
+          if (currentAiTranscription) {
+            trText.textContent = currentAiTranscription;
+            trBox.style.display = 'block';
+          } else {
+            trBox.style.display = 'none';
+          }
+        }
+
+        currentAiErrors = Array.isArray(parsed.specific_errors) ? parsed.specific_errors : [];
+        const errBox = document.getElementById('ai-errors-box');
+        const errList = document.getElementById('ai-errors-list');
+        if (errBox && errList) {
+          if (currentAiErrors.length > 0) {
+            errList.innerHTML = currentAiErrors.map(e => `<li>${esc(e)}</li>`).join('');
+            errBox.style.display = 'block';
+          } else {
+            errBox.style.display = 'none';
+          }
         }
 
         if (parsed.feedback_summary) {
@@ -2330,7 +2650,7 @@ Retorne APENAS um JSON no formato:
         if (parsed.scores && parsed.scores.c4 === 20) state.trophies.kumonCohesion = true;
         if (parsed.scores && parsed.scores.c5 === 20) state.trophies.noForbiddenComma = true;
 
-        statusEl.textContent = '✅ Redação avaliada com sucesso!';
+        statusEl.textContent = '✅ Redação lida e avaliada com sucesso!';
       } catch (e) {
         statusEl.textContent = '⚠️ Erro ao analisar imagem. Atribua as notas manualmente nos botões acima.';
       } finally {
@@ -2340,21 +2660,69 @@ Retorne APENAS um JSON no formato:
 
     function saveEssay() {
       const title = document.getElementById('grd-title').value.trim() || 'Redação Sem Título';
+      const level = document.getElementById('grd-level').value || 'prata';
       const feedback = document.getElementById('grd-feedback').value.trim();
       const metrics = calcScore();
 
+      if (rubric[4] === 20) state.trophies.kumonCohesion = true;
+      if (rubric[5] === 20) state.trophies.noForbiddenComma = true;
+
+      if (editingEssayIndex !== null && state.currentWeek.essays[editingEssayIndex]) {
+        const existing = state.currentWeek.essays[editingEssayIndex];
+        const prevScore = existing.previousScore !== undefined ? existing.previousScore : existing.score;
+        state.currentWeek.essays[editingEssayIndex] = {
+          ...existing,
+          readingTitle: title,
+          level: level,
+          previousScore: prevScore !== metrics.total ? prevScore : existing.previousScore,
+          score: metrics.total,
+          unlockedMinutes: metrics.mins,
+          feedback: feedback,
+          rubricScores: { ...rubric },
+          specificErrors: [...currentAiErrors],
+          transcription: currentAiTranscription || existing.transcription || '',
+          fileName: uploadedFileName || existing.fileName || '',
+          updatedAt: new Date().toLocaleDateString('pt-BR')
+        };
+
+        if (existing.subId) {
+          const linkedSub = (state.currentWeek.submissions || []).find(s => s.id === existing.subId);
+          if (linkedSub) {
+            linkedSub.score = metrics.total;
+            linkedSub.unlockedMinutes = metrics.mins;
+            linkedSub.feedback = feedback;
+            linkedSub.rubricScores = { ...rubric };
+            linkedSub.specificErrors = [...currentAiErrors];
+            linkedSub.transcription = currentAiTranscription || linkedSub.transcription || '';
+          }
+        }
+
+        cancelRegradeEssay();
+        saveState();
+        alert(`🔄 2ª Chance salva! A nota de "${title}" foi atualizada para ${metrics.total} pts (${metrics.mins} min de PC).`);
+        clearUploadedFile();
+        openTab('dashboard');
+        return;
+      }
+
       const newEssay = {
+        id: 'ess_' + Date.now(),
+        subId: currentGradingSubId || null,
         readingTitle: title,
+        level: level,
         score: metrics.total,
         unlockedMinutes: metrics.mins,
         feedback: feedback,
+        rubricScores: { ...rubric },
+        specificErrors: [...currentAiErrors],
+        transcription: currentAiTranscription || '',
         fileName: uploadedFileName || '',
         date: new Date().toLocaleDateString('pt-BR')
       };
 
       state.currentWeek.essays.unshift(newEssay);
 
-      // If linked to a submission from the child, update it!
+      // If linked to a submission from the child, update it and free heavy Base64 payload!
       if (currentGradingSubId) {
         const sub = (state.currentWeek.submissions || []).find(s => s.id === currentGradingSubId);
         if (sub) {
@@ -2362,6 +2730,10 @@ Retorne APENAS um JSON no formato:
           sub.score = metrics.total;
           sub.unlockedMinutes = metrics.mins;
           sub.feedback = feedback;
+          sub.rubricScores = { ...rubric };
+          sub.specificErrors = [...currentAiErrors];
+          sub.transcription = currentAiTranscription || '';
+          sub.fileData = ''; // Free Base64 image/PDF payload after grading to protect localStorage & Cloud quota
         }
         currentGradingSubId = null;
       }
@@ -2374,16 +2746,18 @@ Retorne APENAS um JSON no formato:
 
     function removeEssay(index) {
       if (!confirm('Remover esta redação da semana?')) return;
+      if (editingEssayIndex === index) cancelRegradeEssay();
       state.currentWeek.essays.splice(index, 1);
       saveState();
     }
 
     // =========================================================================
-    // TIMER DE JOGATINA
+    // TIMER DE JOGATINA & DESAFIO DE PONTUALIDADE (ANTI-CHEAT)
     // =========================================================================
     function setTimer(minutes) {
       timerInitSecs = minutes * 60;
       timerSecs = timerInitSecs;
+      timerElapsedSecs = 0;
       updateTimerDisplay();
     }
 
@@ -2392,20 +2766,34 @@ Retorne APENAS um JSON no formato:
         clearInterval(timerRef);
         timerRef = null;
         updateTimerBtns(false);
+        pushToCloud();
       } else {
         updateTimerBtns(true);
         timerRef = setInterval(() => {
           if (timerSecs > 0) {
             timerSecs--;
+            timerElapsedSecs++;
+            if (timerElapsedSecs % 60 === 0) {
+              state.currentWeek.usedPcMinutes = (state.currentWeek.usedPcMinutes || 0) + 1;
+              safeSaveToLocalStorage();
+              render();
+            }
             updateTimerDisplay();
           } else {
             clearInterval(timerRef);
             timerRef = null;
             updateTimerBtns(false);
+            saveState();
             alert('⏰ Fim do tempo de computador! Salve seu jogo e desligue o computador.');
           }
         }, 1000);
       }
+    }
+
+    function resetUsedPcMinutes() {
+      if (!confirm('Zerar o contador de minutos já jogados nesta semana?')) return;
+      state.currentWeek.usedPcMinutes = 0;
+      saveState();
     }
 
     function updateTimerBtns(running) {
@@ -2446,7 +2834,28 @@ Retorne APENAS um JSON no formato:
       }
     }
 
+    function requestPunctualBonusFromKid() {
+      if (state.currentWeek.pendingPunctualBonus) {
+        alert('⏳ Você já enviou o pedido de +15 min! Aguarde o Yan ou seu Tio confirmar no painel deles.');
+        return;
+      }
+      state.currentWeek.pendingPunctualBonus = true;
+      saveState();
+      alert('🌟 Pedido enviado para o Yan e seu Tio! Assim que eles confirmarem que você desligou no horário sem briga, os +15 min entram no seu saldo!');
+    }
+
+    function approvePunctualBonus() {
+      state.currentWeek.pendingPunctualBonus = false;
+      addPunctualBonus();
+    }
+
+    function rejectPunctualBonus() {
+      state.currentWeek.pendingPunctualBonus = false;
+      saveState();
+    }
+
     function addPunctualBonus() {
+      state.currentWeek.pendingPunctualBonus = false;
       state.currentWeek.bonusPcMinutes = (state.currentWeek.bonusPcMinutes || 0) + 15;
       state.currentWeek.habits.pcRespect = true;
       state.trophies.punctualWeek = true;
@@ -2455,6 +2864,7 @@ Retorne APENAS um JSON no formato:
     }
 
     function addOvertimePenalty() {
+      state.currentWeek.pendingPunctualBonus = false;
       state.currentWeek.bonusPcMinutes = Math.max(-120, (state.currentWeek.bonusPcMinutes || 0) - 30);
       state.currentWeek.habits.pcRespect = false;
       saveState();
@@ -2507,8 +2917,7 @@ Retorne APENAS um JSON no formato:
 
     function finishWeek() {
       const m = getMetrics();
-      if (!confirm(`Fechar semana atual?
-PC: ${fmtMins(m.unlockedMins)} | Mesada: R$ ${fmtMoney(m.money)}`)) return;
+      if (!confirm(`Fechar semana atual?\nPC: ${fmtMins(m.unlockedMins)} | Mesada: R$ ${fmtMoney(m.money)}`)) return;
       state.pastWeeks.unshift({
         closedAt: new Date().toLocaleDateString('pt-BR'),
         approvedCount: m.approved,
@@ -2519,9 +2928,11 @@ PC: ${fmtMins(m.unlockedMins)} | Mesada: R$ ${fmtMoney(m.money)}`)) return;
         habits: { kumon: false, school: false, pcRespect: false },
         bonusPcMinutes: 0,
         usedPcMinutes: 0,
+        pendingPunctualBonus: false,
         essays: [],
         submissions: []
       };
+      cancelRegradeEssay();
       saveState();
       openTab('dashboard');
     }
@@ -2576,17 +2987,40 @@ PC: ${fmtMins(m.unlockedMins)} | Mesada: R$ ${fmtMoney(m.money)}`)) return;
           p: (state.pastWeeks || []).slice(0, 12)
         };
 
-        const postResp = await fetch('https://bytebin.lucko.me/post', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const postData = await postResp.json();
-        if (postData && postData.key) {
-          await fetch(`${CLOUD_KV_URL}/UpdateValue/${CLOUD_APP_KEY}/${CLOUD_POINTER_KEY}/${postData.key}`, {
+        const jsonStr = JSON.stringify(payload);
+        let newBinKey = '';
+
+        // Primary Cloud Store: api.mclo.gs (90-day retention, multi-read, CORS *)
+        try {
+          const mclResp = await fetch('https://api.mclo.gs/1/log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'content=' + encodeURIComponent(jsonStr)
+          });
+          if (mclResp.ok) {
+            const mclData = await mclResp.json();
+            if (mclData && mclData.id) newBinKey = mclData.id;
+          }
+        } catch (err) {}
+
+        // Fallback Cloud Store: bytebin
+        if (!newBinKey) {
+          const postResp = await fetch('https://bytebin.lucko.me/post', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: jsonStr
+          });
+          const postData = await postResp.json();
+          if (postData && postData.key) newBinKey = postData.key;
+        }
+
+        if (newBinKey) {
+          await fetch(`${CLOUD_KV_URL}/UpdateValue/${CLOUD_APP_KEY}/${CLOUD_POINTER_KEY}/${newBinKey}`, {
             method: 'POST'
           });
           if (badge) badge.textContent = '☁️ Sincronizado';
+        } else {
+          if (badge) badge.textContent = '☁️ Salvo local';
         }
       } catch (e) {
         if (badge) badge.textContent = '☁️ Salvo local';
@@ -2605,12 +3039,33 @@ PC: ${fmtMins(m.unlockedMins)} | Mesada: R$ ${fmtMoney(m.money)}`)) return;
           return;
         }
 
-        const dataResp = await fetch(`https://bytebin.lucko.me/${binKey}`);
-        if (!dataResp.ok) {
-          if (badge) badge.textContent = '☁️ Sincronizado';
+        let decoded = null;
+        // Try primary store (api.mclo.gs) first, then fallback (bytebin)
+        try {
+          const mclResp = await fetch(`https://api.mclo.gs/1/raw/${binKey}`);
+          if (mclResp.ok) {
+            decoded = await mclResp.json();
+          }
+        } catch (err) {}
+
+        if (!decoded) {
+          try {
+            const bbResp = await fetch(`https://bytebin.lucko.me/${binKey}`);
+            if (bbResp.ok) {
+              decoded = await bbResp.json();
+            }
+          } catch (err) {}
+        }
+
+        if (!decoded) {
+          if ((state.currentWeek.essays || []).length > 0 || (state.pastWeeks || []).length > 0) {
+            await pushToCloud();
+          } else if (badge) {
+            badge.textContent = '☁️ Sincronizado';
+          }
           return;
         }
-        const decoded = await dataResp.json();
+
         if (decoded && decoded.w) {
           const localTime = state.updatedAt || 0;
           const cloudTime = decoded.updatedAt || 0;
@@ -2631,7 +3086,7 @@ PC: ${fmtMins(m.unlockedMins)} | Mesada: R$ ${fmtMoney(m.money)}`)) return;
             if (Array.isArray(decoded.p)) {
               state.pastWeeks = decoded.p;
             }
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            safeSaveToLocalStorage();
             render();
           }
         }
@@ -2655,9 +3110,10 @@ PC: ${fmtMins(m.unlockedMins)} | Mesada: R$ ${fmtMoney(m.money)}`)) return;
 
       let pendingNotice = '';
       if (pendingCount > 0) {
-        pendingNotice = `
-📬 *Atenção:* Há ${pendingCount} redação enviada aguardando correção!
-`;
+        pendingNotice = `\n📬 *Atenção:* Há ${pendingCount} redação enviada aguardando correção!\n`;
+      }
+      if (state.currentWeek.pendingPunctualBonus) {
+        pendingNotice += `\n⏱️ *Atenção:* O jogador pediu confirmação de +15 min por desligar o PC no horário!\n`;
       }
 
       const msg =
